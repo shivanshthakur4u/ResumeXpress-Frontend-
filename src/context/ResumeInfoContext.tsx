@@ -17,7 +17,7 @@ const defaultValue: ResumeInfoContextType = {
 export const ResumeInfoContext = createContext<ResumeInfoContextType>(defaultValue);
 
 export const ResumeInfoProvider = ({ children }: { children: React.ReactNode }) => {
-    const [resumeInfo, setResumeInfo] = useState(dummy);
+    const [resumeInfo, setResumeInfo] = useState<Resume>(dummy);
     return (
         <ResumeInfoContext.Provider value={{ resumeInfo, setResumeInfo }}>
             {children}

@@ -3,6 +3,9 @@ import { Input } from "@/components/ui/input";
 import React, { useContext, useEffect, useState } from "react";
 import RichTextEditor from "../../RichTextEditor";
 import { ResumeInfoContext } from "@/context/ResumeInfoContext";
+import { useUpdateResume } from "@/lib/queryHooks/resumeHooks";
+import { useParams } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 interface ExperienceFormType {
   enableNext: React.Dispatch<React.SetStateAction<boolean>>;
@@ -25,6 +28,10 @@ function ExperienceForm({ enableNext }: ExperienceFormType) {
   const [experienceList, setExperienceList] = useState<FormFields[]>([
     formFields,
   ]);
+  
+  const {isError, isPending, mutate:updateExperience}=useUpdateResume();
+
+  const params = useParams<{Id:string}>()
 
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -62,6 +69,16 @@ function ExperienceForm({ enableNext }: ExperienceFormType) {
       setExperienceList(newEntries);
     }
   };
+
+  const onSave =()=>{
+    const data={
+      data:{
+        Experience:experienceList.map(({ ...rest }) => rest)
+      }
+    }
+    updateExperience({formData:data, id:params?.Id})
+    enableNext(true);
+  }
 
   return (
     <div className="p-5 shadow-lg rounded-lg border-t-primary border-t-4 mt-10">
@@ -154,7 +171,9 @@ function ExperienceForm({ enableNext }: ExperienceFormType) {
             </Button>
           )}
         </div>
-        <Button>Save</Button>
+        <Button onClick={()=>onSave()}>{
+          isPending && !isError ? <Loader2 className="animate-spin" /> :'Save'
+          }</Button>
       </div>
     </div>
   );

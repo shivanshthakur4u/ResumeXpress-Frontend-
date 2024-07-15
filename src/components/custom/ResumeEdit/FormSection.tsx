@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, LayoutGrid } from "lucide-react";
 import SummaryForm from "./Forms/SummaryForm";
 import ExperienceForm from "./Forms/ExperienceForm";
+import EducationForm from "./Forms/EducationForm";
 
 
 function FormSection() {
@@ -48,15 +49,13 @@ function FormSection() {
       </div>
       {/* Personal Detail Form */}
       {
-        activeFormIndex === 1 && <PersonalDetailsForm enableNext={setEnableNext} />
+        activeFormIndex === 1 ? <PersonalDetailsForm enableNext={setEnableNext} />
+          : activeFormIndex === 2 ? <SummaryForm enableNext={setEnableNext} />
+            : activeFormIndex === 3 ? <ExperienceForm enableNext={setEnableNext} />
+              : activeFormIndex === 4 && <EducationForm enableNext={setEnableNext} />
 
       }
-      {
-        activeFormIndex === 2 && <SummaryForm enableNext={setEnableNext} />
-      }
-       {
-        activeFormIndex === 3 && <ExperienceForm enableNext={setEnableNext} />
-      }
+
     </div>
   );
 }

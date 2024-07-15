@@ -34,8 +34,7 @@ interface Experience {
 }
 
 // Education data type
-interface Education {
-  id: number;
+export interface Education {
   universityName: string;
   startDate: string;
   endDate: string;

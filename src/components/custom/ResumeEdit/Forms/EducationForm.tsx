@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ResumeInfoContext } from "@/context/ResumeInfoContext";
 import { useUpdateResume } from "@/lib/queryHooks/resumeHooks";
 import { Education } from "@/lib/types/resumeTypes";
-import { Loader2 } from "lucide-react";
+import { GraduationCap, Loader2 } from "lucide-react";
 import { useParams } from "next/navigation";
 import React, { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -72,8 +72,8 @@ function EducationForm({ enableNext }: EducationProps) {
 
   return (
     <div className="p-5 shadow-lg rounded-lg border-t-primary border-t-4 mt-10">
-      <h2 className="font-bold text-lg">Education</h2>
-      <p>Add Your Educational details</p>
+      <h2 className="font-bold text-lg"> <GraduationCap />Education</h2>
+      <p className="text-gray-400">Add Your Educational details</p>
 
       <div>
         {educationalList?.map((item: Education, index: number) => (
@@ -118,12 +118,14 @@ function EducationForm({ enableNext }: EducationProps) {
                 <label htmlFor="startDate" className="font-bold text-xs">
                   Start Date
                 </label>
-                <Input
+               <div className=" relative">
+               <Input
                   type="date"
                   name="startDate"
                   value={item?.startDate}
                   onChange={(e) => handleChnage(e, index)}
                 />
+               </div>
               </div>
               {/* end Date */}
               <div className="max-sm:col-span-2 col-span-1  flex flex-col gap-1">

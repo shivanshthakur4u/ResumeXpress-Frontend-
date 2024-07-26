@@ -1,3 +1,4 @@
+import { formatDate } from "@/lib/formatdate";
 import React from "react";
 
 function ProfessionalPreview({ resumeInfo }: { resumeInfo: any }) {
@@ -30,8 +31,8 @@ function ProfessionalPreview({ resumeInfo }: { resumeInfo: any }) {
           <h2 className="text-xs flex justify-between" style={{}}>
             {experience?.companyName}, {experience?.city}, {experience.state}
             <span>
-              {experience?.startDate} {" - "}
-              {experience?.currentlyWorking ? "Present" : experience?.endDate}
+              {formatDate(experience?.startDate)} {" - "}
+              {experience?.currentlyWorking ? "Present" : formatDate(experience?.endDate)}
             </span>
           </h2>
           <div

@@ -16,7 +16,7 @@ function ResumeView() {
   const params = useParams<{ Id: string }>();
   const { isError, isLoading, data } = useGetResumeById(params?.Id);
   const [resumeInfo, setResumeInfo] = useState(data);
-  const [isprintclicked, setPrintClicked] = useState(false);
+ 
 
   const { user } = useContext(AuthContext) as AuthContextType;
 
@@ -26,27 +26,11 @@ function ResumeView() {
 
   // console.log("data-preview:", data)
 
-  useEffect(() => {
-    const handleDownload = () => {
-      if (typeof window !== "undefined") {
-        window.print();
-        setPrintClicked(true);
-      }
-    };
-    const downloadButton = document.getElementById(
-      "downloadButton"
-    ) as HTMLButtonElement | null;
-    if (downloadButton) {
-      downloadButton.addEventListener("click", handleDownload);
+  const handleDownload = () => {
+    if (typeof window !== "undefined") {
+      window.print();
     }
-    return () => {
-      if (downloadButton) {
-        downloadButton.removeEventListener("click", handleDownload);
-        setPrintClicked(false);
-      }
-    };
-  }, []);
-
+  };
   return (
     <ResumeInfoProvider>
       <div className="flex flex-col w-full">
@@ -58,13 +42,13 @@ function ResumeView() {
               id="no-print-area"
               className="my-10 md:mx-20 lg:mx-36 max-sm:w-full"
             >
-              <h2 className="text-center text-2xl font-medium">
+              <h2 className="text-center text-2xl font-medium max-sm:px-4">
                 {user
                   ? "Your"
                   : `${resumeInfo?.firstName} ${resumeInfo?.lastName}`}{" "}
                 resume is ready for download and sharing.
               </h2>
-              <p className="text-center text-gray-400">
+              <p className="text-center text-gray-400 max-sm:px-4 max-sm:pt-2">
                 You can now download{" "}
                 {user
                   ? "your"
@@ -77,6 +61,7 @@ function ResumeView() {
                 <Button
                   disabled={isLoading}
                   id="downloadButton"
+                  onClick={handleDownload}
                   className="flex gap-2"
                 >
                   <FileDown size={18} />

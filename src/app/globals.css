@@ -123,3 +123,20 @@
     box-shadow: none;
   }
 }
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  padding-left: 160px;
+}
+
+input[type="date"] {
+  padding-left: 10px; 
+}
+
+@media screen and (max-width: 600px) {
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    padding-left: 110px;
+  }
+  input[type="date"] {
+    padding-left: 15px;
+  }
+}

@@ -96,7 +96,7 @@ function ExperienceForm({ enableNext }: ExperienceFormType) {
         <Briefcase />
         Professional Experience
       </h2>
-      <p>Add previous Job Experience</p>
+      <p className="text-gray-400">Add previous Job Experience</p>
 
       <div>
         {experienceList?.map((item, index) => (

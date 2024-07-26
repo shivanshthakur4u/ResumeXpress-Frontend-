@@ -52,7 +52,7 @@ function RichTextEditor({
     );
     const result = await AIchatSession.sendMessage(prompt);
 
-    console.log("work summary:", result.response.text());
+    // console.log("work summary:", result.response.text());
     const resp = result.response.text();
     setValue(resp.replace("[", "").replace("]", ""));
     setLoading(false);
@@ -60,7 +60,7 @@ function RichTextEditor({
   return (
     <>
       <div className="flex justify-between my-2  items-end">
-        <label className="text-xs">{label}</label>
+        <label className="text-xs font-bold">{label}</label>
         <Button
           className="flex gap-2 border-primary text-primary"
           variant={"outline"}

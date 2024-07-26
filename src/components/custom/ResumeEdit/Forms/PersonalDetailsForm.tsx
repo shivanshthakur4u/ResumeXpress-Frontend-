@@ -61,7 +61,7 @@ function PersonalDetailsForm({ enableNext }: PersonalDetailsFormType) {
   return (
     <div className="p-5 shadow-lg rounded-lg border-t-primary border-t-4 mt-10">
       <h2 className="font-bold text-lg"><BookUser />Personal Details</h2>
-      <p>Get Started with the basic Information</p>
+      <p className="text-gray-400">Get Started with the basic Information</p>
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-2 mt-5 gap-3">
           <div  className="max-sm:col-span-2 col-span-1 flex flex-col gap-1">

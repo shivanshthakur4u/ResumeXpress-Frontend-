@@ -76,11 +76,11 @@ function SummaryForm({ enableNext }: SummaryFormType) {
     <div>
       <div className="p-5 shadow-lg rounded-lg border-t-primary border-t-4 mt-10">
         <h2 className="font-bold text-lg"><NotebookPen /> Summary</h2>
-        <p>Add Summary for job title</p>
+        <p className="text-gray-400">Add Summary for job title</p>
 
         <form className="mt-7" onSubmit={onSave}>
           <div className="flex justify-between items-end">
-            <label htmlFor="summary" className="">
+            <label htmlFor="summary" className="text-xs font-bold">
               Add Summary
             </label>
             <Button

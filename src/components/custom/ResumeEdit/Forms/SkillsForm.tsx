@@ -4,7 +4,7 @@ import { Rating } from "@smastrom/react-rating";
 import "@smastrom/react-rating/style.css";
 import { Button } from "@/components/ui/button";
 import { useUpdateResume } from "@/lib/queryHooks/resumeHooks";
-import { Loader2 } from "lucide-react";
+import { Brain, Loader2 } from "lucide-react";
 import { Skill } from "@/lib/types/resumeTypes";
 import { useParams } from "next/navigation";
 import { ResumeInfoContext } from "@/context/ResumeInfoContext";
@@ -74,8 +74,8 @@ function SkillsForm({ enableNext }: SkillsFormType) {
   return (
     <>
       <div className="p-5 shadow-lg rounded-lg border-t-primary border-t-4 mt-10">
-        <h2 className="font-bold text-lg">Skills</h2>
-        <p>Add Your top skills</p>
+        <h2 className="font-bold text-lg"><Brain /> Skills</h2>
+        <p className="text-gray-400">Add Your top skills</p>
         <div>
           {skillsList.map((item, index) => (
             <div

@@ -2,9 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ResumeInfoContext } from "@/context/ResumeInfoContext";
 import { useUpdateResume } from "@/lib/queryHooks/resumeHooks";
-import { Loader2 } from "lucide-react";
+import { BookUser, Loader2 } from "lucide-react";
 import { useParams } from "next/navigation";
-import React, { useContext, useState, ChangeEvent, FormEvent} from "react";
+import React, { useContext, useState, ChangeEvent, FormEvent } from "react";
+import toast from "react-hot-toast";
 
 interface PersonalDetailsFormType {
   enableNext: React.Dispatch<React.SetStateAction<boolean>>;
@@ -20,21 +21,18 @@ export interface FormData {
 }
 
 function PersonalDetailsForm({ enableNext }: PersonalDetailsFormType) {
-  const context = useContext(ResumeInfoContext);
   const params = useParams<{ Id: string }>();
-
-
-
-  const { mutate: updateResume, isPending, isError } = useUpdateResume();
   const [formData, setFormData] = useState<object>();
- 
-  if (!context) {
-    return null;
-  }
+  const { resumeInfo, setResumeInfo } = useContext(ResumeInfoContext);
 
-  const { resumeInfo, setResumeInfo } = context;
-
-
+  const postAction = () => {
+    toast.success("Resume Personal Details updated Successfully");
+  };
+  const {
+    mutate: updateResume,
+    isPending,
+    isError,
+  } = useUpdateResume(postAction);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     enableNext(false);
@@ -48,29 +46,26 @@ function PersonalDetailsForm({ enableNext }: PersonalDetailsFormType) {
       [name]: value,
     });
   };
-
+  console.log("personal form data:", formData);
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     // console.log("resume data:", resumeInfo)
     enableNext(true);
-    const data = {
-      data: formData,
-    };
+
     updateResume({
-      formData: data, id: params?.Id
+      formData: formData,
+      id: params?.Id,
     });
   };
 
-
-
   return (
     <div className="p-5 shadow-lg rounded-lg border-t-primary border-t-4 mt-10">
-      <h2 className="font-bold text-lg">Personal Details</h2>
+      <h2 className="font-bold text-lg"><BookUser />Personal Details</h2>
       <p>Get Started with the basic Information</p>
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-2 mt-5 gap-3">
-          <div>
-            <label htmlFor="firstName" className="text-sm">
+          <div  className="max-sm:col-span-2 col-span-1 flex flex-col gap-1">
+            <label htmlFor="firstName" className="text-sm font-bold">
               First Name
             </label>
             <Input
@@ -81,8 +76,8 @@ function PersonalDetailsForm({ enableNext }: PersonalDetailsFormType) {
               required
             />
           </div>
-          <div>
-            <label htmlFor="lastName" className="text-sm">
+          <div  className="max-sm:col-span-2 col-span-1 flex flex-col gap-1">
+            <label htmlFor="lastName" className="text-sm font-bold">
               Last Name
             </label>
             <Input
@@ -93,8 +88,8 @@ function PersonalDetailsForm({ enableNext }: PersonalDetailsFormType) {
               required
             />
           </div>
-          <div className="col-span-2">
-            <label htmlFor="jobTitle" className="text-sm">
+          <div className="col-span-2 flex flex-col gap-1">
+            <label htmlFor="jobTitle" className="text-sm font-bold">
               Job Title
             </label>
             <Input
@@ -105,8 +100,8 @@ function PersonalDetailsForm({ enableNext }: PersonalDetailsFormType) {
               required
             />
           </div>
-          <div className="col-span-2">
-            <label htmlFor="address" className="text-sm">
+          <div className="col-span-2 flex flex-col gap-1">
+            <label htmlFor="address" className="text-sm font-bold">
               Address
             </label>
             <Input
@@ -117,8 +112,8 @@ function PersonalDetailsForm({ enableNext }: PersonalDetailsFormType) {
               required
             />
           </div>
-          <div>
-            <label htmlFor="phone" className="text-sm">
+          <div className="max-sm:col-span-2 col-span-1 flex flex-col gap-1">
+            <label htmlFor="phone" className="text-sm font-bold">
               Phone
             </label>
             <Input
@@ -129,8 +124,8 @@ function PersonalDetailsForm({ enableNext }: PersonalDetailsFormType) {
               required
             />
           </div>
-          <div>
-            <label htmlFor="email" className="text-sm">
+          <div  className="max-sm:col-span-2 col-span-1 flex flex-col gap-1">
+            <label htmlFor="email" className="text-sm font-bold">
               Email
             </label>
             <Input
@@ -143,8 +138,13 @@ function PersonalDetailsForm({ enableNext }: PersonalDetailsFormType) {
           </div>
         </div>
         <div className="mt-3 flex justify-end">
-          <Button type="submit" disabled={isPending}>{
-            isPending && !isError ? <Loader2 className="animate-spin" /> : 'Save'}</Button>
+          <Button type="submit" disabled={isPending}>
+            {isPending && !isError ? (
+              <Loader2 className="animate-spin" />
+            ) : (
+              "Save"
+            )}
+          </Button>
         </div>
       </form>
     </div>

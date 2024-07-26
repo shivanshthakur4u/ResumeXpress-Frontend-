@@ -1,6 +1,8 @@
 import React from 'react'
 
 function SkillsPreview({ resumeInfo }: { resumeInfo: any }) {
+
+    console.log("skill data received:", resumeInfo?.skills)
     return (
 
         <div className='my-6'>
@@ -21,7 +23,7 @@ function SkillsPreview({ resumeInfo }: { resumeInfo: any }) {
                             <div className='h-2 bg-gray-200 w-[120px]'>
                                 <div className='h-2' style={{
                                     backgroundColor:resumeInfo?.themeColor,
-                                    width:skill?.rating+ '%'
+                                    width:skill?.rating*20+ '%'
                                 }}>
                                 </div>
                             </div>

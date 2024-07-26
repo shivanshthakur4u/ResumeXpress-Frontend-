@@ -8,6 +8,7 @@ export interface createNewResumeType {
 
 // Resume data type
 export interface Resume {
+  resumeInfo: Experience;
   firstName: string;
   lastName: string;
   jobTitle: string;
@@ -22,7 +23,7 @@ export interface Resume {
 }
 
 // Experience data type
-interface Experience {
+export interface Experience {
   title: string;
   companyName: string;
   city: string;
@@ -44,8 +45,7 @@ export interface Education {
 }
 
 // Skill data type
-interface Skill {
-  id: number;
+export interface Skill {
   name: string;
   rating: number;
 }

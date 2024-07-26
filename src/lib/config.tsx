@@ -1,15 +1,25 @@
-
 import axios from "axios";
+import Cookies from "js-cookie";
 
-const API_KEY = process.env.NEXT_PUBLIC_STRAPI_API_KEY;
-
-// console.log("api key:", API_KEY)
 const axiosInstance = axios.create({
-    baseURL: 'http://localhost:1337/api/',
-    headers:{
-        'Content-Type': 'application/json',
-         'Authorization':`Bearer ${API_KEY}`
-    }
+  baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-export { axiosInstance as axios}
+export const updateAxiosInstance = (token: string) => {
+  axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+};
+
+const userCookie = Cookies.get("user");
+if (userCookie) {
+  try {
+    const user = JSON.parse(userCookie);
+    updateAxiosInstance(user?.token);
+  } catch (error) {
+    console.error("Error parsing user cookie:", error);
+  }
+}
+
+export { axiosInstance as axios };

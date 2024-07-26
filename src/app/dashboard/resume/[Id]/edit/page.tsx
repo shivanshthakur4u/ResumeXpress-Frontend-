@@ -9,7 +9,7 @@ const EditResumePage = () => {
 
   return (
     <ResumeInfoProvider>
-      <div className="grid grid-cols-1 md:grid-cols-2 p-10 gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-2 md:p-10 p-5 gap-10">
         {/* form section */}
         <FormSection />
 

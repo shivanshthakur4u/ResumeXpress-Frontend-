@@ -1,21 +1,20 @@
-import { FormData } from "@/components/custom/ResumeEdit/Forms/PersonalDetailsForm";
 import { axios } from "../config";
 
 export const createNewResume = async (formData: any) => {
   const data = {
-    data: formData,
+    title: formData,
   };
   return axios({
     method: "POST",
-    url: "/user-resumes",
+    url: "resume/createResume",
     data: data,
   });
 };
 
-export const getUserResumes = async (userEmail: string | undefined) => {
+export const getUserResumes = async ({page,limit}:{page:number, limit:number}) => {
   return axios({
     method: "GET",
-    url: "/user-resumes?filters[userEmail][$eq]=" + userEmail,
+    url: `resume/getResumes?page=${page}&limit=${limit}`,
   });
 };
 
@@ -23,13 +22,26 @@ export const updateUserResume = async ({
   formData,
   id,
 }: {
-  formData: object | undefined;
+  formData: object | undefined | string;
   id: string;
 }) => {
-  
   return axios({
     method: "PUT",
-    url: `/user-resumes/${id}`,
+    url: `resume/updateResume/${id}`,
     data: formData,
   });
 };
+
+export const getResumeById = async (id:string ) => {
+  return axios({
+    method: "GET",
+    url: `resume/getResumebyId/${id}`,
+  });
+};
+
+export const deleteResumeById = async(id:string)=>{
+  return axios({
+    method:"DELETE",
+    url:`resume/deleteResumeById/${id}`
+  })
+}

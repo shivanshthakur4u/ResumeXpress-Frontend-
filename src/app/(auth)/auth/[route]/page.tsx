@@ -1,20 +1,20 @@
 "use client";
 import Image from "next/image";
-import SigninImage from "../../../../public/login-image.png";
+import SigninImage from "../../../../../public/login-image.png";
 import AuthFormComponents from "@/components/custom/AuthFormComponents";
-import { useParams } from "next/navigation";
+import { useParams} from "next/navigation";
+import NotFound from "@/app/not-found";
 
 function Signin() {
   const params = useParams<{ route: string }>();
   const isSignin = params?.route==="login"
-
-
-
+  const isSignup= params?.route==="signup"
+  if (!isSignin && !isSignup) {
+     return <NotFound />
+  }
   return (
-    <div
-      className={`flex w-full  md:px-10 px-5 md:h-[88.8dvh] h-full ${
-        isSignin ? "md:py-11" : "md:py-4 md:mt-1"
-      } py-5 items-center justify-center`}
+      <div
+      className={`flex w-full md:px-16 px-6 h-full  pt-10 pb-3 items-center justify-center`}
     >
       <div
         className="flex  rounded-lg border-2 border-primary
@@ -25,7 +25,7 @@ function Signin() {
           className="md:w-[60%]  items-center justify-center
          flex md:border-r-2 md:border-r-primary md:bg-primary/45"
         >
-          <Image src={SigninImage} alt="login-img" />
+          <Image src={SigninImage} alt="login-img" priority/>
         </div>
 
         {/* form-part */}

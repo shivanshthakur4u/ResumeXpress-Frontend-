@@ -22,16 +22,18 @@ interface RichTextEditorProps {
   onRichTextEditorChange: (e: any) => void;
   label: string;
   index: number;
+  defvalue:string;
 }
 
 const PROMPT =
-  "position titile: {positionTitle} , Depends on position title give me 5-7 bullet points for my experience in resume (Please do not add experince level and No JSON array) must be unique every time , give me result in HTML tags";
+  "position titile: {positionTitle} , Depends on position title give me 5-7 bullet points for my experience in resume (Please do not add experince level and No JSON array) must be unique every time , give me result in HTML tags only";
 function RichTextEditor({
   onRichTextEditorChange,
   label,
   index,
+  defvalue,
 }: RichTextEditorProps) {
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState(defvalue);
   const { resumeInfo } = useContext(ResumeInfoContext);
   const [loading, setLoading] = useState(false);
 

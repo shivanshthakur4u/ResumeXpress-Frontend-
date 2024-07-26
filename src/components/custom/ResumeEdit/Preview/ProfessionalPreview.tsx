@@ -4,7 +4,7 @@ function ProfessionalPreview({ resumeInfo }: { resumeInfo: any }) {
   return (
     <div className="my-6">
       <h2
-        className=" text-center font-bold text-sm mb-2"
+        className="text-center font-bold text-sm mb-2"
         style={{
           color: resumeInfo?.themeColor,
         }}
@@ -35,7 +35,7 @@ function ProfessionalPreview({ resumeInfo }: { resumeInfo: any }) {
             </span>
           </h2>
           <div
-            className="text-xs my-2"
+            className="text-xs my-2 rsw-ce"
             dangerouslySetInnerHTML={{
               __html: experience?.workSummary,
             }}

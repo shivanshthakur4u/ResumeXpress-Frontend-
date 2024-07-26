@@ -5,7 +5,10 @@ import RichTextEditor from "../../RichTextEditor";
 import { ResumeInfoContext } from "@/context/ResumeInfoContext";
 import { useUpdateResume } from "@/lib/queryHooks/resumeHooks";
 import { useParams } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Briefcase, Loader2 } from "lucide-react";
+import { Experience } from "@/lib/types/resumeTypes";
+import toast from "react-hot-toast";
+import CommonButton from "./CommonButton";
 
 interface ExperienceFormType {
   enableNext: React.Dispatch<React.SetStateAction<boolean>>;
@@ -25,18 +28,25 @@ type FormFields = typeof formFields;
 
 function ExperienceForm({ enableNext }: ExperienceFormType) {
   const { resumeInfo, setResumeInfo } = useContext(ResumeInfoContext);
-  const [experienceList, setExperienceList] = useState<FormFields[]>([
-    formFields,
-  ]);
-  
-  const {isError, isPending, mutate:updateExperience}=useUpdateResume();
+  const [experienceList, setExperienceList] = useState<Experience[]>(
+    resumeInfo?.experience
+  );
+  const postAction = () => {
+    toast.success("Resume Experience Details updated Successfully");
+  };
+  const {
+    isError,
+    isPending,
+    mutate: updateExperience,
+  } = useUpdateResume(postAction);
 
-  const params = useParams<{Id:string}>()
+  const params = useParams<{ Id: string }>();
 
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement>,
     index: number
   ) => {
+    enableNext(false);
     const { name, value } = event.target;
     const newEntries = experienceList.slice();
 
@@ -48,7 +58,7 @@ function ExperienceForm({ enableNext }: ExperienceFormType) {
   };
 
   const AddNewExperience = () => {
-    setExperienceList([...experienceList, formFields]);
+    setExperienceList([...experienceList, { ...formFields }]);
   };
 
   const RemoveExperience = () => {
@@ -60,9 +70,11 @@ function ExperienceForm({ enableNext }: ExperienceFormType) {
       ...resumeInfo,
       experience: experienceList,
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [experienceList]);
 
   const handleChangeRichTextEditor = (e: any, name: string, index: number) => {
+    enableNext(false);
     const newEntries = experienceList.slice();
     if (name in newEntries[index]) {
       newEntries[index][name as keyof FormFields] = e.target.value;
@@ -70,59 +82,60 @@ function ExperienceForm({ enableNext }: ExperienceFormType) {
     }
   };
 
-  const onSave =()=>{
-    const data={
-      data:{
-        Experience:experienceList.map(({ ...rest }) => rest)
-      }
-    }
-    updateExperience({formData:data, id:params?.Id})
+  const onSave = () => {
+    const data = {
+      experience: experienceList.map(({ ...rest }) => rest),
+    };
+    updateExperience({ formData: data, id: params?.Id });
     enableNext(true);
-  }
+  };
 
   return (
     <div className="p-5 shadow-lg rounded-lg border-t-primary border-t-4 mt-10">
-      <h2 className="font-bold text-lg">Professional Experience</h2>
+      <h2 className="font-bold text-lg">
+        <Briefcase />
+        Professional Experience
+      </h2>
       <p>Add previous Job Experience</p>
 
       <div>
         {experienceList?.map((item, index) => (
           <div key={index}>
             <div className="grid grid-cols-2 gap-3 border p-3 my-5 rounded-lg">
-              <div>
-                <label className="text-xs">Position Title</label>
+              <div className="max-sm:col-span-2 col-span-1 flex flex-col gap-1">
+                <label className="text-xs font-bold">Position Title</label>
                 <Input
                   name="title"
                   value={item.title}
                   onChange={(event) => handleChange(event, index)}
                 />
               </div>
-              <div>
-                <label className="text-xs">Company Name</label>
+              <div className="max-sm:col-span-2 col-span-1 flex flex-col gap-1">
+                <label className="text-xs font-bold">Company Name</label>
                 <Input
                   name="companyName"
                   value={item.companyName}
                   onChange={(event) => handleChange(event, index)}
                 />
               </div>
-              <div>
-                <label className="text-xs">City</label>
+              <div className="max-sm:col-span-2 col-span-1 flex flex-col gap-1">
+                <label className="text-xs font-bold">City</label>
                 <Input
                   name="city"
                   value={item.city}
                   onChange={(event) => handleChange(event, index)}
                 />
               </div>
-              <div>
-                <label className="text-xs">State</label>
+              <div className="max-sm:col-span-2 col-span-1 flex flex-col gap-1">
+                <label className="text-xs font-bold">State</label>
                 <Input
                   name="state"
                   value={item.state}
                   onChange={(event) => handleChange(event, index)}
                 />
               </div>
-              <div>
-                <label className="text-xs">Start Date</label>
+              <div className="max-sm:col-span-2 col-span-1 flex flex-col gap-1">
+                <label className="text-xs font-bold">Start Date</label>
                 <Input
                   type="date"
                   name="startDate"
@@ -130,8 +143,8 @@ function ExperienceForm({ enableNext }: ExperienceFormType) {
                   onChange={(event) => handleChange(event, index)}
                 />
               </div>
-              <div>
-                <label className="text-xs">End Date</label>
+              <div className="max-sm:col-span-2 col-span-1 flex flex-col gap-1">
+                <label className="text-xs font-bold">End Date</label>
                 <Input
                   type="date"
                   name="endDate"
@@ -146,35 +159,22 @@ function ExperienceForm({ enableNext }: ExperienceFormType) {
                   }
                   label={"Work Summary"}
                   index={index}
+                  defvalue={item?.workSummary}
                 />
               </div>
             </div>
           </div>
         ))}
       </div>
-      <div className="flex justify-between">
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            className="text-primary"
-            onClick={AddNewExperience}
-          >
-            + Add More Experience
-          </Button>
-          {experienceList?.length > 1 && (
-            <Button
-              variant="outline"
-              className="text-primary"
-              onClick={RemoveExperience}
-            >
-              - Remove
-            </Button>
-          )}
-        </div>
-        <Button onClick={()=>onSave()}>{
-          isPending && !isError ? <Loader2 className="animate-spin" /> :'Save'
-          }</Button>
-      </div>
+      <CommonButton
+        AddAction={AddNewExperience}
+        RemoveAction={RemoveExperience}
+        title="Experience"
+        listLength={experienceList?.length}
+        isError={isError}
+        isPending={isPending}
+        onSave={onSave}
+      />
     </div>
   );
 }

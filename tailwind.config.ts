@@ -53,6 +53,14 @@ const config = {
           foreground: "hsl(var(--card-foreground))",
         },
       },
+      
+      listStyleType: {
+        disc: 'disc',
+        decimal: 'decimal',
+      },
+      padding: {
+        '2em': '2em',
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",

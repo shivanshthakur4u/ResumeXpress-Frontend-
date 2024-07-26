@@ -1,3 +1,4 @@
+"use client";
 import { ResumeInfoContext } from "@/context/ResumeInfoContext";
 import React, { useContext } from "react";
 import PersonalDetailsPreview from "./Preview/PersonalDetailsPreview";
@@ -5,17 +6,17 @@ import SummaryDetailsPreview from "./Preview/SummaryDetailsPreview";
 import ProfessionalPreview from "./Preview/ProfessionalPreview";
 import EducationalPreview from "./Preview/EducationalPreview";
 import SkillsPreview from "./Preview/SkillsPreview";
+import { useParams, usePathname } from "next/navigation";
 
 function PreviewSection() {
-  const context = useContext(ResumeInfoContext)
-  if (!context) {
-    return null;
-  }
-
-  const { resumeInfo } = context
+  const { resumeInfo } = useContext(ResumeInfoContext);
+  const pathname = usePathname();
+  const params = useParams<{ Id: string }>();
   return (
     <div
-      className={`shadow-lg h-full p-14 border-t-[20px]`}
+      className={` ${
+        pathname !== `/my-resume/${params?.Id}/view` && 'shadow-lg'
+      } h-full sm:p-14 border-t-[20px] p-5`}
       style={{ borderColor: resumeInfo?.themeColor }}
     >
       {/* Personal Details */}

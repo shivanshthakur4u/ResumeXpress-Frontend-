@@ -12,7 +12,6 @@ const EditResumePage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 md:p-10 p-5 gap-10">
         {/* form section */}
         <FormSection />
-
         {/* resume Preview */}
         <PreviewSection />
       </div>

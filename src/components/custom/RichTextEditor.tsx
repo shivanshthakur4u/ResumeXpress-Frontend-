@@ -22,11 +22,12 @@ interface RichTextEditorProps {
   onRichTextEditorChange: (e: any) => void;
   label: string;
   index: number;
-  defvalue:string;
+  defvalue: string;
 }
 
 const PROMPT =
-  "position titile: {positionTitle} , Depends on position title give me 5-7 bullet points for my experience in resume (Please do not add experince level and No JSON array) must be unique every time , give me result in HTML tags only";
+  "Position title: {positionTitle}. Based on this position title, provide 5-7 bullet points for my experience in resume in HTML format only. Ensure the output is wrapped in appropriate HTML tags like <ul> and <li>.";
+
 function RichTextEditor({
   onRichTextEditorChange,
   label,
@@ -37,7 +38,7 @@ function RichTextEditor({
   const { resumeInfo } = useContext(ResumeInfoContext);
   const [loading, setLoading] = useState(false);
 
-  const generatWorkSummaryFromAI = async () => {
+  const generateWorkSummaryFromAI = async () => {
     setLoading(true);
     if (!resumeInfo?.experience[index]?.title) {
       toast({
@@ -45,33 +46,53 @@ function RichTextEditor({
         title: "Please add experience title first",
         description: "Please Add position Title to generate Summary",
       });
+      setLoading(false);
+      return;
     }
     const prompt = PROMPT.replace(
       "{positionTitle}",
       resumeInfo?.experience[index]?.title
     );
-    const result = await AIchatSession.sendMessage(prompt);
+    try {
+      const result = await AIchatSession.sendMessage(prompt);
+      const resp = result.response.text();
 
-    // console.log("work summary:", result.response.text());
-    const resp = result.response.text();
-    setValue(resp.replace("[", "").replace("]", ""));
-    setLoading(false);
+      // Ensure the response is HTML
+      if (!/<[a-z][\s\S]*>/i.test(resp)) {
+        // If not HTML, wrap it in HTML tags
+        const formattedResp = resp
+          .split("\n")
+          .map((item) => `<li>${item}</li>`)
+          .join("");
+        setValue(`<ul>${formattedResp}</ul>`);
+      } else {
+        setValue(resp);
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error generating summary",
+        description: "There was an error generating the summary. Please try again.",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
+
   return (
     <>
-      <div className="flex justify-between my-2  items-end">
+      <div className="flex justify-between my-2 items-end">
         <label className="text-xs font-bold">{label}</label>
         <Button
           className="flex gap-2 border-primary text-primary"
           variant={"outline"}
           size={"sm"}
-          onClick={generatWorkSummaryFromAI}
+          onClick={generateWorkSummaryFromAI}
         >
           {loading ? (
             <Loader2 className="animate-spin text-primary" />
           ) : (
             <>
-              {" "}
               <BrainCog className="w-4 h-4" />
               Generate from AI
             </>

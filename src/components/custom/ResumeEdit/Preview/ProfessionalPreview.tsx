@@ -32,7 +32,9 @@ function ProfessionalPreview({ resumeInfo }: { resumeInfo: any }) {
             {experience?.companyName}, {experience?.city}, {experience.state}
             <span>
               {formatDate(experience?.startDate)} {" - "}
-              {experience?.currentlyWorking ? "Present" : formatDate(experience?.endDate)}
+              {experience?.currentlyWorking
+                ? "Present"
+                : experience?.endDate && formatDate(experience?.endDate)}
             </span>
           </h2>
           <div

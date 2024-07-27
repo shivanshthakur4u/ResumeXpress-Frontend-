@@ -9,6 +9,7 @@ import { useParams } from "next/navigation";
 import React, { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import CommonButton from "./CommonButton";
+import CurrentlyCheckbox from "../CurrentlyCheckbox";
 
 interface EducationProps {
   enableNext: React.Dispatch<React.SetStateAction<boolean>>;
@@ -21,12 +22,20 @@ const formFields = {
   degree: "",
   major: "",
   description: "",
+  currentlyStudying: false,
 };
+
+type FormFields = typeof formFields;
 
 function EducationForm({ enableNext }: EducationProps) {
   const { resumeInfo, setResumeInfo } = useContext(ResumeInfoContext);
+  const [currentlyStudying, setcurrentlyStudying] = useState(
+    resumeInfo?.education?.map(
+      (edu: Education) => edu?.currentlyStudying || false
+    ) || []
+  );
   const [educationalList, setEducationalList] = useState<Education[]>(
-    resumeInfo?.education
+    resumeInfo?.education ||[]
   );
   const params = useParams<{ Id: string }>();
 
@@ -44,8 +53,11 @@ function EducationForm({ enableNext }: EducationProps) {
     const { target } = e;
     const { name, value } = target;
 
-    const newEntries = educationalList.slice();
-    newEntries[index][name as keyof Education] = value;
+    const newEntries = [...educationalList];
+    newEntries[index] = {
+      ...newEntries[index],
+      [name as keyof FormFields]: value,
+    };
     setEducationalList(newEntries);
   };
 
@@ -63,84 +75,83 @@ function EducationForm({ enableNext }: EducationProps) {
   }, [educationalList]);
 
   const onSave = () => {
-    const data = {
-      education: educationalList.map(({ ...rest }) => rest),
-    };
-    updateEducation({ formData: data, id: params?.Id });
+    const hasError = educationalList?.some((edu, index) => {
+      return !currentlyStudying[index] && !edu?.endDate;
+    });
+
+    if (hasError) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
+    const updatedEducationList = educationalList.map((edu, index) => ({
+      ...edu,
+      currentlyStudying: currentlyStudying[index] || false,
+      endDate: currentlyStudying[index] ? undefined : edu.endDate,
+    }));
+    updateEducation({ formData:{education: updatedEducationList}, id: params?.Id });
     enableNext(true);
   };
 
   return (
     <div className="p-5 shadow-lg rounded-lg border-t-primary border-t-4 mt-10">
-      <h2 className="font-bold text-lg"> <GraduationCap />Education</h2>
+      <h2 className="font-bold text-lg">
+        {" "}
+        <GraduationCap />
+        Education
+      </h2>
       <p className="text-gray-400">Add Your Educational details</p>
 
       <div>
         {educationalList?.map((item: Education, index: number) => (
           <div key={index}>
             <div className="grid grid-cols-2 gap-3 border p-3 my-5 rounded-lg">
-              {/* university Name */}
-              <div className="col-span-2 flex flex-col gap-1">
-                <label htmlFor="universityName" className="font-bold text-xs">
-                  University Name
-                </label>
-                <Input
-                  name="universityName"
-                  value={item?.universityName}
-                  onChange={(e) => handleChnage(e, index)}
-                />
-              </div>
-
-              {/* degree */}
-              <div className="max-sm:col-span-2 col-span-1 flex flex-col gap-1">
-                <label htmlFor="degree" className="font-bold text-xs">
-                  Degree
-                </label>
-                <Input
-                  name="degree"
-                  value={item?.degree}
-                  onChange={(e) => handleChnage(e, index)}
-                />
-              </div>
-              {/* major */}
-              <div className="max-sm:col-span-2 col-span-1  flex flex-col gap-1">
-                <label htmlFor="major" className="font-bold text-xs">
-                  Major
-                </label>
-                <Input
-                  name="major"
-                  value={item?.major}
-                  onChange={(e) => handleChnage(e, index)}
-                />
-              </div>
-              {/* start Date */}
-              <div className="max-sm:col-span-2 col-span-1  flex flex-col gap-1">
-                <label htmlFor="startDate" className="font-bold text-xs">
-                  Start Date
-                </label>
-               <div className=" relative">
-               <Input
-                  type="date"
-                  name="startDate"
-                  value={item?.startDate}
-                  onChange={(e) => handleChnage(e, index)}
-                />
-               </div>
-              </div>
-              {/* end Date */}
-              <div className="max-sm:col-span-2 col-span-1  flex flex-col gap-1">
-                <label htmlFor="endDate" className="font-bold text-xs">
-                  End Date
-                </label>
-                <Input
-                  type="date"
-                  name="endDate"
-                  value={item?.endDate}
-                  onChange={(e) => handleChnage(e, index)}
-                />
-              </div>
-              {/* Description */}
-              <div className="col-span-2  flex flex-col gap-1">
+              {Object.keys(formFields).map((field, fieldIndex) =>
+                field !== "description" && field !== "currentlyStudying" ? (
+                  <div
+                    className={`${
+                      field !== "universityName"
+                        ? "max-sm:col-span-2 col-span-1"
+                        : "col-span-2"
+                    } flex flex-col gap-1`}
+                    key={fieldIndex}
+                  >
+                    <label
+                      htmlFor="universityName"
+                      className="font-bold text-xs capitalize"
+                    >
+                      {field.replace(/([A-Z])/g, " $1")}
+                    </label>
+                    <div className="flex flex-col gap-1">
+                      <Input
+                        name={field}
+                        value={item[field as keyof FormFields] as string}
+                        onChange={(e) => handleChnage(e, index)}
+                        type={
+                          field === "startDate" || field === "endDate"
+                            ? "date"
+                            : "text"
+                        }
+                        disabled={
+                          field === "endDate" && currentlyStudying[index]
+                        }
+                      />
+                      {field === "endDate" && (
+                        <div>
+                          <CurrentlyCheckbox
+                            text="Studying"
+                            checked={currentlyStudying}
+                            setChecked={setcurrentlyStudying}
+                            index={index}
+                          />
+                        </div>
+                      )}
+                     
+                    </div>
+                  </div>
+                ) : null
+              )}
+               <div className="col-span-2  flex flex-col gap-1">
                 <label htmlFor="description" className="font-bold text-xs">
                   Description
                 </label>

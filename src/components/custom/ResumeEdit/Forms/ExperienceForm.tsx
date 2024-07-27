@@ -1,14 +1,14 @@
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import React, { useContext, useEffect, useState } from "react";
 import RichTextEditor from "../../RichTextEditor";
 import { ResumeInfoContext } from "@/context/ResumeInfoContext";
 import { useUpdateResume } from "@/lib/queryHooks/resumeHooks";
 import { useParams } from "next/navigation";
-import { Briefcase, Loader2 } from "lucide-react";
+import { Briefcase } from "lucide-react";
 import { Experience } from "@/lib/types/resumeTypes";
 import toast from "react-hot-toast";
 import CommonButton from "./CommonButton";
+import CurrentlyCheckbox from "../CurrentlyCheckbox";
 
 interface ExperienceFormType {
   enableNext: React.Dispatch<React.SetStateAction<boolean>>;
@@ -22,23 +22,29 @@ const formFields = {
   startDate: "",
   endDate: "",
   workSummary: "",
+  currentlyWorking: false,
 };
 
 type FormFields = typeof formFields;
 
 function ExperienceForm({ enableNext }: ExperienceFormType) {
   const { resumeInfo, setResumeInfo } = useContext(ResumeInfoContext);
-  const [experienceList, setExperienceList] = useState<Experience[]>(
-    resumeInfo?.experience
+  const [currentlyWorking, setCurrentlyWorking] = useState<boolean[]>(
+    resumeInfo?.experience.map(
+      (exp: Experience) => exp.currentlyWorking || false
+    ) || []
   );
-  const postAction = () => {
-    toast.success("Resume Experience Details updated Successfully");
-  };
+  const [experienceList, setExperienceList] = useState<Experience[]>(
+    resumeInfo?.experience || []
+  );
+
   const {
     isError,
     isPending,
     mutate: updateExperience,
-  } = useUpdateResume(postAction);
+  } = useUpdateResume(() => {
+    toast.success("Resume Experience Details updated successfully");
+  });
 
   const params = useParams<{ Id: string }>();
 
@@ -48,45 +54,63 @@ function ExperienceForm({ enableNext }: ExperienceFormType) {
   ) => {
     enableNext(false);
     const { name, value } = event.target;
-    const newEntries = experienceList.slice();
+    const updatedEntries = [...experienceList];
 
-    // name is a key of FormFields
-    if (name in newEntries[index]) {
-      newEntries[index][name as keyof FormFields] = value;
-      setExperienceList(newEntries);
+    if (name in formFields) {
+      updatedEntries[index] = {
+        ...updatedEntries[index],
+        [name as keyof FormFields]: value,
+      };
     }
+
+    setExperienceList(updatedEntries);
   };
 
-  const AddNewExperience = () => {
+  const handleRichTextEditorChange = (
+    value: string,
+    name: string,
+    index: number
+  ) => {
+    enableNext(false);
+    const updatedEntries = [...experienceList];
+    updatedEntries[index] = {
+      ...updatedEntries[index],
+      [name as keyof FormFields]: value,
+    };
+    setExperienceList(updatedEntries);
+  };
+
+  const addNewExperience = () => {
     setExperienceList([...experienceList, { ...formFields }]);
   };
 
-  const RemoveExperience = () => {
-    setExperienceList((experienceList) => experienceList.slice(0, -1));
+  const removeExperience = () => {
+    setExperienceList(experienceList.slice(0, -1));
   };
 
   useEffect(() => {
-    setResumeInfo({
-      ...resumeInfo,
-      experience: experienceList,
+    setResumeInfo({ ...resumeInfo, experience: experienceList });
+  }, [experienceList, resumeInfo, setResumeInfo]);
+
+  const handleSave = () => {
+    const hasErrors = experienceList.some((exp, index) => {
+      return !currentlyWorking[index] && !exp.endDate;
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [experienceList]);
 
-  const handleChangeRichTextEditor = (e: any, name: string, index: number) => {
-    enableNext(false);
-    const newEntries = experienceList.slice();
-    if (name in newEntries[index]) {
-      newEntries[index][name as keyof FormFields] = e.target.value;
-      setExperienceList(newEntries);
+    if (hasErrors) {
+      toast.error("Please fill in all required fields.");
+      return;
     }
-  };
+    const updatedExperienceList = experienceList.map((exp, index) => ({
+      ...exp,
+      currentlyWorking: currentlyWorking[index] || false,
+      endDate: currentlyWorking[index] ? undefined : exp.endDate,
+    }));
 
-  const onSave = () => {
-    const data = {
-      experience: experienceList.map(({ ...rest }) => rest),
-    };
-    updateExperience({ formData: data, id: params?.Id });
+    updateExperience({
+      formData: { experience: updatedExperienceList },
+      id: params?.Id,
+    });
     enableNext(true);
   };
 
@@ -96,84 +120,69 @@ function ExperienceForm({ enableNext }: ExperienceFormType) {
         <Briefcase />
         Professional Experience
       </h2>
-      <p className="text-gray-400">Add previous Job Experience</p>
+      <p className="text-gray-400">Add previous job experience</p>
 
-      <div>
-        {experienceList?.map((item, index) => (
-          <div key={index}>
-            <div className="grid grid-cols-2 gap-3 border p-3 my-5 rounded-lg">
-              <div className="max-sm:col-span-2 col-span-1 flex flex-col gap-1">
-                <label className="text-xs font-bold">Position Title</label>
+      {experienceList.map((item, index) => (
+        <div
+          key={index}
+          className="grid grid-cols-2 gap-3 border p-3 my-5 rounded-lg"
+        >
+          {Object.keys(formFields).map((field, fieldIndex) =>
+            field !== "workSummary" && field !== "currentlyWorking" ? (
+              <div
+                key={fieldIndex}
+                className={`max-sm:col-span-2 col-span-1 flex flex-col gap-1`}
+              >
+                <label className="text-xs font-bold capitalize">
+                  {field.replace(/([A-Z])/g, " $1")}
+                </label>
                 <Input
-                  name="title"
-                  value={item.title}
-                  onChange={(event) => handleChange(event, index)}
-                />
-              </div>
-              <div className="max-sm:col-span-2 col-span-1 flex flex-col gap-1">
-                <label className="text-xs font-bold">Company Name</label>
-                <Input
-                  name="companyName"
-                  value={item.companyName}
-                  onChange={(event) => handleChange(event, index)}
-                />
-              </div>
-              <div className="max-sm:col-span-2 col-span-1 flex flex-col gap-1">
-                <label className="text-xs font-bold">City</label>
-                <Input
-                  name="city"
-                  value={item.city}
-                  onChange={(event) => handleChange(event, index)}
-                />
-              </div>
-              <div className="max-sm:col-span-2 col-span-1 flex flex-col gap-1">
-                <label className="text-xs font-bold">State</label>
-                <Input
-                  name="state"
-                  value={item.state}
-                  onChange={(event) => handleChange(event, index)}
-                />
-              </div>
-              <div className="max-sm:col-span-2 col-span-1 flex flex-col gap-1">
-                <label className="text-xs font-bold">Start Date</label>
-                <Input
-                  type="date"
-                  name="startDate"
-                  value={item.startDate}
-                  onChange={(event) => handleChange(event, index)}
-                />
-              </div>
-              <div className="max-sm:col-span-2 col-span-1 flex flex-col gap-1">
-                <label className="text-xs font-bold">End Date</label>
-                <Input
-                  type="date"
-                  name="endDate"
-                  value={item.endDate}
-                  onChange={(event) => handleChange(event, index)}
-                />
-              </div>
-              <div className="col-span-2">
-                <RichTextEditor
-                  onRichTextEditorChange={(e) =>
-                    handleChangeRichTextEditor(e, "workSummary", index)
+                  name={field}
+                  type={
+                    field === "startDate" || field === "endDate"
+                      ? "date"
+                      : "text"
                   }
-                  label={"Work Summary"}
-                  index={index}
-                  defvalue={item?.workSummary}
+                  value={item[field as keyof FormFields] as string}
+                  disabled={field === "endDate" && currentlyWorking[index]}
+                  onChange={(event) => handleChange(event, index)}
+                  required={!currentlyWorking[index]}
                 />
+                {field === "endDate" && (
+                  <div>
+                    <CurrentlyCheckbox
+                      text="Working"
+                      checked={currentlyWorking}
+                      setChecked={setCurrentlyWorking}
+                      index={index}
+                    />
+                  </div>
+                )}
               </div>
-            </div>
+            ) : null
+          )}
+
+          <div className="col-span-2">
+            <RichTextEditor
+              onRichTextEditorChange={(e) =>
+                handleRichTextEditorChange(e, "workSummary", index)
+              }
+              label="Work Summary"
+              index={index}
+              defvalue={item.workSummary}
+            />
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
+
       <CommonButton
-        AddAction={AddNewExperience}
-        RemoveAction={RemoveExperience}
+        AddAction={addNewExperience}
+        RemoveAction={removeExperience}
         title="Experience"
-        listLength={experienceList?.length}
+        listLength={experienceList.length}
         isError={isError}
         isPending={isPending}
-        onSave={onSave}
+        onSave={handleSave}
       />
     </div>
   );

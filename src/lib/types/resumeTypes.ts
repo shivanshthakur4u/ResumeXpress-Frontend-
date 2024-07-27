@@ -30,7 +30,7 @@ export interface Experience {
   state: string;
   startDate: string;
   endDate: string;
-  currentlyWorking?: boolean;
+  currentlyWorking: boolean;
   workSummary: string;
 }
 
@@ -42,6 +42,7 @@ export interface Education {
   degree: string;
   major: string;
   description: string;
+  currentlyStudying:boolean;
 }
 
 // Skill data type

@@ -31,6 +31,8 @@ function SummaryForm({ enableNext }: SummaryFormType) {
     isPending,
     isError,
   } = useUpdateResume(postAction);
+
+  
   // set summary data
   useEffect(() => {
     summary &&
@@ -42,8 +44,8 @@ function SummaryForm({ enableNext }: SummaryFormType) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [summary]);
 
-  // handle summary change input
 
+  // handle summary change input
   const handleChange = (e: any) => {
     enableNext(false);
     setSummary(e.target.value);

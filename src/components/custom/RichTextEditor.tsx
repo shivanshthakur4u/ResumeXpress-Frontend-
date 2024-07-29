@@ -37,6 +37,7 @@ function RichTextEditor({
   const [value, setValue] = useState(defvalue);
   const { resumeInfo } = useContext(ResumeInfoContext);
   const [loading, setLoading] = useState(false);
+  // console.log("def value rich text:", defvalue);
 
   const generateWorkSummaryFromAI = async () => {
     setLoading(true);

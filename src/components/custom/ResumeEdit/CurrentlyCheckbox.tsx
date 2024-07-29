@@ -19,7 +19,7 @@ const CurrentlyCheckbox: React.FC<CurrentlyCheckboxProps> = ({ checked, index, s
     <div className="flex items-center  justify-end gap-1 pt-1">
       <Input
         type="checkbox"
-        checked={checked[index]}
+        checked={checked[index] ? checked[index]:false}
         className="w-4 h-4"
         onChange={handleCheck}
       />

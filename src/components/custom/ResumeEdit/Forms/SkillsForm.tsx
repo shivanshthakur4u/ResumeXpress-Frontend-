@@ -22,7 +22,9 @@ const formFields: Skill = {
 
 function SkillsForm({ enableNext }: SkillsFormType) {
   const { resumeInfo, setResumeInfo } = useContext(ResumeInfoContext);
-  const [skillsList, setSkillsList] = useState<Skill[]>(resumeInfo?.skills);
+  const [skillsList, setSkillsList] = useState<Skill[]>(
+    resumeInfo?.skills?.length ? resumeInfo.skills : [{ ...formFields }]
+  );
   const params = useParams<{ Id: string }>();
   const postAction = () => {
     toast.success("Resume Skills Details updated Successfully");
@@ -38,7 +40,7 @@ function SkillsForm({ enableNext }: SkillsFormType) {
     name: K,
     value: Skill[K]
   ) => {
-    enableNext(false)
+    enableNext(false);
     const newEntries = [...skillsList];
     newEntries[index] = {
       ...newEntries[index],
@@ -60,7 +62,7 @@ function SkillsForm({ enableNext }: SkillsFormType) {
       ...resumeInfo,
       skills: skillsList,
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skillsList]);
 
   const onSave = () => {
@@ -74,7 +76,9 @@ function SkillsForm({ enableNext }: SkillsFormType) {
   return (
     <>
       <div className="p-5 shadow-lg rounded-lg border-t-primary border-t-4 mt-10">
-        <h2 className="font-bold text-lg"><Brain /> Skills</h2>
+        <h2 className="font-bold text-lg">
+          <Brain /> Skills
+        </h2>
         <p className="text-gray-400">Add Your top skills</p>
         <div>
           {skillsList.map((item, index) => (
@@ -99,14 +103,14 @@ function SkillsForm({ enableNext }: SkillsFormType) {
           ))}
         </div>
         <div>
-          <CommonButton 
-           onSave={onSave}
-           AddAction={AddNewSkills}
-           RemoveAction={RemoveSkill}
-           isError={isError}
-           isPending={isPending}
-           listLength={skillsList?.length}
-           title="Skill"
+          <CommonButton
+            onSave={onSave}
+            AddAction={AddNewSkills}
+            RemoveAction={RemoveSkill}
+            isError={isError}
+            isPending={isPending}
+            listLength={skillsList?.length}
+            title="Skill"
           />
         </div>
       </div>

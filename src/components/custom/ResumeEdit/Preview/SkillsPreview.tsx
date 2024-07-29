@@ -2,7 +2,7 @@ import React from 'react'
 
 function SkillsPreview({ resumeInfo }: { resumeInfo: any }) {
 
-    console.log("skill data received:", resumeInfo?.skills)
+    // console.log("skill data received:", resumeInfo?.skills)
     return (
 
         <div className='my-6'>

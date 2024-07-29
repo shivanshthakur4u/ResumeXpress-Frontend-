@@ -29,13 +29,13 @@ type FormFields = typeof formFields;
 
 function EducationForm({ enableNext }: EducationProps) {
   const { resumeInfo, setResumeInfo } = useContext(ResumeInfoContext);
-  const [currentlyStudying, setcurrentlyStudying] = useState(
+  const [currentlyStudying, setcurrentlyStudying] = useState<boolean[]>(
     resumeInfo?.education?.map(
       (edu: Education) => edu?.currentlyStudying || false
-    ) || []
+    ) || [false]
   );
   const [educationalList, setEducationalList] = useState<Education[]>(
-    resumeInfo?.education ||[]
+    resumeInfo?.education?.length ? resumeInfo?.education : [{...formFields}]
   );
   const params = useParams<{ Id: string }>();
 

@@ -35,7 +35,9 @@ function ExperienceForm({ enableNext }: ExperienceFormType) {
     ) || []
   );
   const [experienceList, setExperienceList] = useState<Experience[]>(
-    resumeInfo?.experience || []
+    resumeInfo?.experience?.length
+      ? resumeInfo?.experience
+      : [{ ...formFields }]
   );
 
   const {
@@ -90,7 +92,8 @@ function ExperienceForm({ enableNext }: ExperienceFormType) {
 
   useEffect(() => {
     setResumeInfo({ ...resumeInfo, experience: experienceList });
-  }, [experienceList, resumeInfo, setResumeInfo]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [experienceList]);
 
   const handleSave = () => {
     const hasErrors = experienceList.some((exp, index) => {
@@ -113,6 +116,8 @@ function ExperienceForm({ enableNext }: ExperienceFormType) {
     });
     enableNext(true);
   };
+
+  // console.log('experience list:', experienceList)
 
   return (
     <div className="p-5 shadow-lg rounded-lg border-t-primary border-t-4 mt-10">
@@ -165,7 +170,7 @@ function ExperienceForm({ enableNext }: ExperienceFormType) {
           <div className="col-span-2">
             <RichTextEditor
               onRichTextEditorChange={(e) =>
-                handleRichTextEditorChange(e, "workSummary", index)
+                handleRichTextEditorChange(e.target.value, "workSummary", index)
               }
               label="Work Summary"
               index={index}

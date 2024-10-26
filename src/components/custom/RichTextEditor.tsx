@@ -21,7 +21,7 @@ import { AIchatSession } from "@/lib/AIModal";
 import { toast } from "../ui/use-toast";
 
 interface RichTextEditorProps {
-  onRichTextEditorChange: (value: string) => void;
+  onRichTextEditorChange: (e: any) => void;
   label: string;
   index: number;
   defvalue: string;

@@ -1,6 +1,6 @@
 "use client";
 import { Eye, EyeOff, KeyRound, Loader2, Mail, User } from "lucide-react";
-import React, { ChangeEvent, FormEvent, useContext, useState } from "react";
+import { memo, useCallback, useContext, useState } from "react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import Link from "next/link";
@@ -12,234 +12,221 @@ interface AuthFormComponentsProps {
   isSignin: boolean;
 }
 
-const formFields = {
+// outside component to prevent recreation
+ export const INITIAL_FORM_STATE = {
   name: "",
   email: "",
   password: "",
   confirmPassword: "",
-};
+} as const;
 
-type FormFields = typeof formFields;
+// Type for form fields
+export type FormFields = typeof INITIAL_FORM_STATE;
 
-function AuthFormComponents({ isSignin }: AuthFormComponentsProps) {
+// Separate component for input field to prevent unnecessary re-renders
+export const FormInput = memo(
+  ({
+    type,
+    name,
+    placeholder,
+    icon: Icon,
+    onChange,
+    showToggle,
+    onToggle,
+    showPassword,
+  }: {
+    type: string;
+    name: string;
+    placeholder: string;
+    icon: React.ElementType;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    showToggle?: boolean;
+    onToggle?: () => void;
+    showPassword?: boolean;
+  }) => (
+    <label className="flex items-center gap-2 border-2 py-1 px-5 rounded-lg focus-within:border-primary group input-wrapper">
+      <Icon className="h-5 w-5 icon" />
+      <Input
+        type={showToggle ? (showPassword ? "text" : "password") : type}
+        name={name}
+        className="grow border-none outline-none hover:outline-none focus:outline-none focus:border-none focus-visible:ring-white"
+        placeholder={placeholder}
+        onChange={onChange}
+        required
+      />
+      {showToggle && (
+        <>
+          {showPassword ? (
+            <Eye onClick={onToggle} className="cursor-pointer icon" />
+          ) : (
+            <EyeOff onClick={onToggle} className="cursor-pointer icon" />
+          )}
+        </>
+      )}
+    </label>
+  )
+);
+
+FormInput.displayName = "FormInput";
+
+const AuthFormComponents = memo(({ isSignin }: AuthFormComponentsProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState<FormFields>(formFields);
+  const [formData, setFormData] = useState<FormFields>(INITIAL_FORM_STATE);
   const [confirmPasswordsShow, setConfirmPasswordShow] = useState(false);
   const { user } = useContext(AuthContext) as AuthContextType;
 
   const router = useRouter();
 
-  const postAction = () => {
+  const postAction = useCallback(() => {
     router.push("/dashboard");
-  };
+  }, [router]);
 
-  // user register mutation
-  const {
-    mutate: registerUser,
-    isError,
-    isPending,
-  } = useRegisteruser(postAction);
+  const { mutate: registerUser, isPending: isRegisterPending } =
+    useRegisteruser(postAction);
+  const { mutate: signinUser, isPending: isSigninPending } =
+    useSignin(postAction);
 
-  // signin action mutation
-  const {
-    mutate: signinUser,
-    isError: isSigninError,
-    isPending: isSigninPending,
-  } = useSignin(postAction);
-
-  // toggle passwords icon
-  const handleIconToggle = (type: string) => {
+  const handleIconToggle = useCallback((type: string) => {
     if (type === "password") {
-      setShowPassword(!showPassword);
+      setShowPassword((prev) => !prev);
+    } else if (type === "cnfpassword") {
+      setConfirmPasswordShow((prev) => !prev);
     }
-    if (type === "cnfpassword") {
-      setConfirmPasswordShow(!confirmPasswordsShow);
-    }
-  };
+  }, []);
 
-  // handle input change function
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name as keyof FormFields]: value });
-    setError(null);
-    // console.log("form data", formData);
-  };
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = e.target;
+      setFormData((prev) => ({ ...prev, [name]: value }));
+      setError(null);
+    },
+    []
+  );
 
-  // form submit action
-  const onSave = (e: FormEvent) => {
-    e.preventDefault();
-    if (
-      !isSignin &&
-      formData &&
-      formData?.password !== formData?.confirmPassword
-    ) {
-      setError("Passwords do not match");
-      return;
-    }
+  const onSave = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
 
-    if (!isSignin) {
-      const { confirmPassword, ...restData } = formData;
-      registerUser({ ...restData });
-    }
-    if(isSignin){
-      const { confirmPassword, name, ...restData } = formData;
-    signinUser({...restData});
-    }
-  };
+      if (!isSignin && formData.password !== formData.confirmPassword) {
+        setError("Passwords do not match");
+        return;
+      }
+
+      const { confirmPassword, ...baseData } = formData;
+
+      if (isSignin) {
+        const { name, ...signinData } = baseData;
+        signinUser(signinData);
+      } else {
+        registerUser(baseData);
+      }
+    },
+    [formData, isSignin, registerUser, signinUser]
+  );
+
+  const isPending = isSignin ? isSigninPending : isRegisterPending;
 
   return (
-    <>
-      <div>
-        <form
-          onSubmit={onSave}
-          className="flex flex-col md:gap-6 gap-3 h-full w-full md:px-20 px-6"
-        >
-          <div className="grid grid-cols-1 gap-4 w-full">
-            {/* name */}
-            {!isSignin && (
-              <div>
-                <label
-                  className="flex items-center gap-2 border-2 py-1 px-5 
-              rounded-lg focus-within:border-primary group input-wrapper"
-                >
-                  <User className="h-5 w-5 icon " />
-                  <Input
-                    type="text"
-                    name="name"
-                    className="grow border-none outline-none hover:outline-none
-                  focus:outline-none focus:border-none focus-visible:ring-white"
-                    placeholder="Ex:Saurabh Singh"
-                    onChange={handleInputChange}
-                    required
-                  />
-                </label>
-              </div>
-            )}
-            {/* email */}
-            <div className="">
-              <label
-                className="flex items-center gap-2 
-                border-2 py-1 px-5 rounded-lg focus-within:border-primary input-wrapper"
-              >
-                <Mail className="h-5 w-5 icon " />
-                <Input
-                  type="text"
-                  name="email"
-                  className="grow border-none outline-none hover:outline-none
-                    focus:outline-none focus:border-none focus-visible:ring-white"
-                  placeholder="example@gmail.com"
-                  onChange={handleInputChange}
-                  required
-                />
-              </label>
+    <form
+      onSubmit={onSave}
+      className="flex flex-col md:gap-6 gap-3 h-full w-full md:px-20 px-6"
+    >
+      <div className="flex flex-col gap-2">
+        <div className="grid grid-cols-1 gap-4 w-full">
+          {!isSignin && (
+            <FormInput
+              type="text"
+              name="name"
+              placeholder="Ex: Saurabh Singh"
+              icon={User}
+              onChange={handleInputChange}
+            />
+          )}
+
+          <FormInput
+            type="email"
+            name="email"
+            placeholder="example@gmail.com"
+            icon={Mail}
+            onChange={handleInputChange}
+          />
+
+          <FormInput
+            type="password"
+            name="password"
+            placeholder="Password"
+            icon={KeyRound}
+            onChange={handleInputChange}
+            showToggle
+            onToggle={() => handleIconToggle("password")}
+            showPassword={showPassword}
+          />
+
+          {!isSignin && (
+            <div className="flex flex-col gap-1">
+              <FormInput
+                type="password"
+                name="confirmPassword"
+                placeholder="Confirm Password"
+                icon={KeyRound}
+                onChange={handleInputChange}
+                showToggle
+                onToggle={() => handleIconToggle("cnfpassword")}
+                showPassword={confirmPasswordsShow}
+              />
+              {error && <p className="text-xs text-red-600">{error}</p>}
             </div>
-            {/* password */}
-            <div>
-              <label
-                className="flex items-center gap-2 border-2
-                focus-within:border-primary py-1 px-5 rounded-lg input-wrapper"
-              >
-                <KeyRound className="h-5 w-5 icon " />
-                <Input
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  className="grow border-none outline-none hover:outline-none
-                    focus:outline-none focus:border-none focus-visible:ring-white"
-                  placeholder="Password"
-                  onChange={(e) => handleInputChange(e)}
-                  required
-                />
-                {showPassword ? (
-                  <Eye
-                    onClick={() => handleIconToggle("password")}
-                    className="cursor-pointer icon"
-                  />
-                ) : (
-                  <EyeOff
-                    onClick={() => handleIconToggle("password")}
-                    className=" cursor-pointer icon"
-                  />
-                )}
-              </label>
-            </div>
-            {/* confirm password */}
-            {!isSignin && (
-              <div className="flex flex-col gap-1">
-                <label
-                  className="flex items-center gap-2 border-2
-                  focus-within:border-primary py-1 px-5 rounded-lg input-wrapper"
-                >
-                  <KeyRound className="h-5 w-5 icon " />
-                  <Input
-                    name="confirmPassword"
-                    type={confirmPasswordsShow ? "text" : "password"}
-                    className="grow border-none outline-none hover:outline-none
-                      focus:outline-none focus:border-none focus-visible:ring-white"
-                    placeholder="Confirm Password"
-                    onChange={handleInputChange}
-                    required
-                  />
-                  {confirmPasswordsShow ? (
-                    <Eye
-                      onClick={() => handleIconToggle("cnfpassword")}
-                      className="cursor-pointer icon"
-                    />
-                  ) : (
-                    <EyeOff
-                      onClick={() => handleIconToggle("cnfpassword")}
-                      className=" cursor-pointer icon"
-                    />
-                  )}
-                </label>
-                {error && <p className="text-xs text-red-600">{error}</p>}
-              </div>
-            )}
-          </div>
-          <div className="flex w-full justify-between md:gap-6 gap-4">
-            <Button
-              type="reset"
-              className="w-full border-primary text-primary hover:text-primary
-             hover:bg-primary/10"
-              variant={"outline"}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              className="w-full border border-primary hover:bg-white hover:text-primary"
-            >
-              {isSignin ? (
-                isSigninPending && !isSigninError ? (
-                  <span className="flex gap-2 items-center">
-                    <Loader2 className="animate-spin" /> Logging in...
-                  </span>
-                ) : (
-                  "Login"
-                )
-              ) : isPending && !isError ? (
-                <span className="flex gap-2 items-center">
-                  <Loader2 className="animate-spin" /> Signing up...
-                </span>
-              ) : (
-                "Signup"
-              )}
-            </Button>
-          </div>
-          {/* login */}
-          <p className=" justify-center items-center text-gray-500  gap-2 flex">
-            {isSignin ? "Don't" : "Already"} have an account?
-            <Link
-              href={`/auth/${isSignin ? "signup" : "login"}`}
-              className="text-primary font-bold"
-            >
-              {isSignin ? "Sign up" : "Login"}
-            </Link>
-          </p>
-        </form>
+          )}
+        </div>
+        {isSignin && (
+          <Link
+            href={"/auth/forgot-password"}
+            className="self-end text-primary font-semibold cursor-pointer text-sm"
+          >
+            Forgot Password?
+          </Link>
+        )}
       </div>
-    </>
+      <div className="flex w-full justify-between md:gap-6 gap-4">
+        <Button
+          type="reset"
+          className="w-full border-primary text-primary hover:text-primary hover:bg-primary/10"
+          variant="outline"
+        >
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          className="w-full border border-primary hover:bg-white hover:text-primary"
+          disabled={isPending}
+        >
+          {isPending ? (
+            <span className="flex gap-2 items-center">
+              <Loader2 className="animate-spin" />
+              {isSignin ? "Logging in..." : "Signing up..."}
+            </span>
+          ) : isSignin ? (
+            "Login"
+          ) : (
+            "Signup"
+          )}
+        </Button>
+      </div>
+
+      <p className="justify-center items-center text-gray-500 gap-2 flex">
+        {isSignin ? "Don't" : "Already"} have an account?
+        <Link
+          href={`/auth/${isSignin ? "signup" : "login"}`}
+          className="text-primary font-bold"
+        >
+          {isSignin ? "Sign up" : "Login"}
+        </Link>
+      </p>
+    </form>
   );
-}
+});
+
+AuthFormComponents.displayName = "AuthFormComponents";
 
 export default AuthFormComponents;

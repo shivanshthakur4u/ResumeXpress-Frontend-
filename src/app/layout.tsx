@@ -32,7 +32,7 @@ export default function RootLayout({
               <Header />
             </header>
             <main className="w-full h-full"> {children}</main>
-            <footer className="mt-10" id="no-print-area">
+            <footer className="mt-10 self-end" id="no-print-area">
               <Footer />
             </footer>
             <Toaster />

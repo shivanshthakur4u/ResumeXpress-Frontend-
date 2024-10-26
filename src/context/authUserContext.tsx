@@ -1,5 +1,5 @@
 "use client";
-import { createContext, ReactNode, useEffect, useState } from "react";
+import { createContext, ReactNode, useEffect, useState, useMemo } from "react";
 import Cookies from "js-cookie";
 import { updateAxiosInstance } from "@/lib/config";
 
@@ -15,9 +15,7 @@ export interface AuthContextType {
   setUser: (user: User | null) => void;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(
-  undefined
-);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -25,25 +23,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const storedUser = Cookies.get("user");
     if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      setUser(parsedUser);
-      updateAxiosInstance(parsedUser.token);
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+        updateAxiosInstance(parsedUser.token);
+      } catch (error) {
+        console.error("Failed to parse stored user", error);
+      }
     }
   }, []);
 
-  const updateUser = (user: User | null) => {
-    if (user) {
-      Cookies.set("user", JSON.stringify(user), { expires: 2 });
-      // router.push("/dashboard");
-      updateAxiosInstance(user.token);
-    } else {
+  const updateUser = (newUser: User | null) => {
+    if (newUser && newUser.token !== user?.token) {
+      Cookies.set("user", JSON.stringify(newUser), { expires: 2 });
+      updateAxiosInstance(newUser.token);
+      setUser(newUser);
+    } else if (!newUser) {
       Cookies.remove("user");
+      setUser(null);
     }
-    setUser(user);
   };
 
+  const contextValue = useMemo(
+    () => ({ user, setUser: updateUser }),
+    [user]
+  );
+
   return (
-    <AuthContext.Provider value={{ user, setUser: updateUser }}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );

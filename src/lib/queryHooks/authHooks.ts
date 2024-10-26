@@ -1,5 +1,5 @@
 "use client";
-import { userLogin, userSignup } from "../queries/authQueries";
+import { userForgotPassword, userLogin, userResetPassword, userSignup } from "../queries/authQueries";
 import { useMutation } from "@tanstack/react-query";
 import { useContext } from "react";
 import { AuthContext, AuthContextType } from "@/context/authUserContext";
@@ -50,3 +50,35 @@ export const useSignin = (postAction?: () => void) => {
     },
   });
 };
+
+export const useForgotPassword = (postAction?:()=>void)=>{
+    return useMutation({
+      mutationFn: userForgotPassword,
+      onError:(err:any)=>{
+        toast.error(err?.response?.data?.message || "Some error occurred while sending password reset link");
+      },
+      onSuccess:(response)=>{
+        const { success} = response.data;
+        if(success){
+          toast.success("Password reset link sent to email")
+        }
+      }
+    })
+}
+
+export const useResetPassowrd =(postAction?:()=>void)=>{
+  return useMutation({
+    mutationFn:userResetPassword,
+    onError:(err:any)=>{
+      toast.error(err?.response?.data?.message || "Some error occurred while resetting password")
+
+    },
+    onSuccess:(response)=>{
+      const {success} = response.data;
+      if(success){
+        toast.success("Password reset successfully")
+        if (postAction) postAction();
+      }
+    }
+  })
+}

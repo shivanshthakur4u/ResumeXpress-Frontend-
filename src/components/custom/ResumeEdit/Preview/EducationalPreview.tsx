@@ -3,7 +3,7 @@ import React from "react";
 
 function EducationalPreview({ resumeInfo }: { resumeInfo: any }) {
   return (
-    <div className="my-6">
+    <div className="my-6 resume-section">
       <h2
         className="text-center font-bold text-sm mb-2"
         style={{
@@ -18,7 +18,7 @@ function EducationalPreview({ resumeInfo }: { resumeInfo: any }) {
         }}
       />
       {resumeInfo?.education?.map((education: any, index: string) => (
-        <div key={index} className="my-5">
+        <div key={index} className="my-5 resume-entry">
           <h2
             className="text-sm font-bold"
             style={{

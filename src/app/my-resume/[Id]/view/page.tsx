@@ -3,12 +3,14 @@ import Header from "@/components/custom/Header";
 import PreviewSection from "@/components/custom/ResumeEdit/PreviewSection";
 import SharePageLoader from "@/components/custom/SharePageLoader";
 import { Button } from "@/components/ui/button";
-import { AuthContext, AuthContextType } from "@/context/authUserContext";
 import { ResumeInfoProvider } from "@/context/ResumeInfoContext";
-import { useGetResumeById } from "@/lib/queryHooks/resumeHooks";
-import { FileDown, Share2 } from "lucide-react";
+import {
+  useGetResumeById,
+  useSetResumeVisibility,
+} from "@/lib/queryHooks/resumeHooks";
+import { FileDown, Globe, Loader2, Lock, Share2 } from "lucide-react";
 import { useParams } from "next/navigation";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { RWebShare } from "react-web-share";
 
@@ -16,15 +18,18 @@ function ResumeView() {
   const params = useParams<{ Id: string }>();
   const { isError, isLoading, data } = useGetResumeById(params?.Id);
   const [resumeInfo, setResumeInfo] = useState(data);
- 
 
-  const { user } = useContext(AuthContext) as AuthContextType;
+  const { mutate: setVisibility, isPending: isVisibilityPending } =
+    useSetResumeVisibility(params?.Id);
+
+  // Ownership comes from the server. Being signed in is not the same as owning
+  // this resume — a signed-in visitor can be viewing someone else's.
+  const isOwner = Boolean(resumeInfo?.isOwner);
+  const isPublic = Boolean(resumeInfo?.isPublic);
 
   useEffect(() => {
     setResumeInfo(data);
   }, [data]);
-
-  // console.log("data-preview:", data)
 
   const handleDownload = () => {
     if (typeof window !== "undefined") {
@@ -43,19 +48,60 @@ function ResumeView() {
               className="my-10 md:mx-20 lg:mx-36 max-sm:w-full"
             >
               <h2 className="text-center text-2xl font-medium max-sm:px-4">
-                {user
+                {isOwner
                   ? "Your"
                   : `${resumeInfo?.firstName} ${resumeInfo?.lastName}`}{" "}
                 resume is ready for download and sharing.
               </h2>
               <p className="text-center text-gray-400 max-sm:px-4 max-sm:pt-2">
                 You can now download{" "}
-                {user
+                {isOwner
                   ? "your"
                   : `${resumeInfo?.firstName} ${resumeInfo?.lastName}`}{" "}
                 resume and share the unique URL with potential employers and
                 professional networks.
               </p>
+
+              {isOwner && (
+                <div className="mx-6 lg:mx-44 mt-8 rounded-lg border p-4">
+                  <div className="flex items-center justify-between gap-4 flex-wrap">
+                    <div className="flex items-start gap-3">
+                      {isPublic ? (
+                        <Globe className="mt-0.5 h-5 w-5 text-primary" />
+                      ) : (
+                        <Lock className="mt-0.5 h-5 w-5 text-gray-500" />
+                      )}
+                      <div>
+                        <p className="font-medium">
+                          {isPublic ? "Public link is on" : "This resume is private"}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {isPublic
+                            ? "Anyone with the link can view this resume."
+                            : "Only you can see it. Turn on the public link to share it."}
+                        </p>
+                      </div>
+                    </div>
+
+                    <Button
+                      variant={isPublic ? "outline" : "default"}
+                      disabled={isVisibilityPending}
+                      onClick={() =>
+                        setVisibility({
+                          id: params?.Id,
+                          isPublic: !isPublic,
+                        })
+                      }
+                      className="flex gap-2"
+                    >
+                      {isVisibilityPending && (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      )}
+                      {isPublic ? "Make private" : "Make public"}
+                    </Button>
+                  </div>
+                </div>
+              )}
 
               <div className="flex justify-between lg:px-44 px-6 my-10 items-center">
                 <Button
@@ -68,18 +114,34 @@ function ResumeView() {
                   Download
                 </Button>
 
-                <RWebShare
-                  data={{
-                    text: "Please find the link to my resume below for your review:",
-                    url: `${process.env.NEXT_PUBLIC_BASE_URL}/my-resume/${params?.Id}/view`,
-                    title: `${resumeInfo?.firstName} ${resumeInfo?.lastName}`,
-                  }}
-                  onClick={() => toast.success("shared successfully!")}
-                >
-                  <Button disabled={isLoading} className="flex gap-2">
-                    Share <Share2 color="#fff" size={18} />
+                {isOwner && !isPublic ? (
+                  // Sharing a link that recipients would get a 404 from is worse
+                  // than not offering the button at all.
+                  <Button
+                    className="flex gap-2"
+                    variant="secondary"
+                    onClick={() =>
+                      toast.error(
+                        "Turn on the public link first, otherwise recipients can't open it."
+                      )
+                    }
+                  >
+                    Share <Share2 size={18} />
                   </Button>
-                </RWebShare>
+                ) : (
+                  <RWebShare
+                    data={{
+                      text: "Please find the link to my resume below for your review:",
+                      url: `${process.env.NEXT_PUBLIC_BASE_URL}/my-resume/${params?.Id}/view`,
+                      title: `${resumeInfo?.firstName} ${resumeInfo?.lastName}`,
+                    }}
+                    onClick={() => toast.success("shared successfully!")}
+                  >
+                    <Button disabled={isLoading} className="flex gap-2">
+                      Share <Share2 color="#fff" size={18} />
+                    </Button>
+                  </RWebShare>
+                )}
               </div>
             </div>
 

@@ -82,45 +82,72 @@
   color: #007dfe;
 }
 
-@media print {
-  #no-print-area {
-    display: none;
-  }
-
-  #print-area {
-    display: block;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    box-shadow: none;
-    height: 100%;
-  }
-
-  body {
-    margin: 0;
-    padding: 0;
-    box-shadow: none;
-  }
-}
-
+/* A4 with a real margin. This was `size: auto; margin: 0`, which left the
+   printer's own unprintable edge to clip the content. */
 @page {
-  size: auto;
-  margin: 0;
-  box-shadow: none;
+  size: A4;
+  margin: 12mm;
 }
 
 @media print {
+  /* Browsers drop backgrounds and colours when printing. The accent colour
+     carries the resume's theme, so opt back in explicitly. */
+  *,
+  *::before,
+  *::after {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  #no-print-area {
+    display: none !important;
+  }
+
   html,
   body {
     margin: 0;
     padding: 0;
-    box-shadow: none;
+    background: #fff;
   }
 
   #print-area {
-    width: 100%;
-    max-width: 100%;
-    box-shadow: none;
+    display: block;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* The preview carries generous on-screen padding (sm:p-14) which, on top of
+     the @page margin, wastes most of the first page. */
+  #print-area > * {
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* Never split a single job, degree or skill across a page boundary. */
+  .resume-entry {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* A section heading left stranded at the foot of a page reads as a bug. */
+  .resume-section > h2 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  p,
+  li {
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* Printed URLs are noise; the text still reads correctly. */
+  a {
+    text-decoration: none;
+    color: inherit;
   }
 }
 

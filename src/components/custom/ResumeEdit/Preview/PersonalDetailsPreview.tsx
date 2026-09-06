@@ -2,7 +2,7 @@ import React from 'react'
 
 function PersonalDetailsPreview({ resumeInfo }: { resumeInfo: any }) {
     return (
-        <div>
+        <div className='resume-entry'>
             <h2 className=' font-bold text-xl text-center' style={{
                 color: resumeInfo?.themeColor,
             }}>

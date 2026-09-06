@@ -5,7 +5,7 @@ function SkillsPreview({ resumeInfo }: { resumeInfo: any }) {
     // console.log("skill data received:", resumeInfo?.skills)
     return (
 
-        <div className='my-6'>
+        <div className='my-6 resume-section'>
             <h2 className='text-center font-bold text-sm mb-2' style={{
                 color: resumeInfo?.themeColor
             }}>Skills</h2>
@@ -16,7 +16,7 @@ function SkillsPreview({ resumeInfo }: { resumeInfo: any }) {
             <div className='grid grid-cols-2 gap-3 my-4'>
                 {
                     resumeInfo?.skills?.map((skill: any, index: string) => (
-                        <div key={index} className='flex items-center justify-between' >
+                        <div key={index} className='flex items-center justify-between resume-entry' >
                             <h2 className='text-xs'>
                                 {skill?.name}
                             </h2>

@@ -4,6 +4,7 @@ import {
   deleteResumeById,
   getResumeById,
   getUserResumes,
+  setResumeVisibility,
   updateUserResume,
 } from "../queries/resumeCRUD";
 import { useRouter } from "next/navigation";
@@ -49,6 +50,24 @@ export const useGetResumeById = (id: string) => {
     queryKey: ["resume-by-id", id],
     queryFn: async () => await getResumeById(id),
     select: (data) => data?.data?.resume,
+  });
+};
+
+export const useSetResumeVisibility = (id: string) => {
+  const queryclient = useQueryClient();
+  return useMutation({
+    mutationFn: setResumeVisibility,
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Some error has occured");
+    },
+    onSuccess: (res) => {
+      queryclient.invalidateQueries({ queryKey: ["resume-by-id", id] });
+      toast.success(
+        res?.data?.isPublic
+          ? "Anyone with the link can now view this resume"
+          : "This resume is now private"
+      );
+    },
   });
 };
 

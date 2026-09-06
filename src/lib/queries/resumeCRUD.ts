@@ -32,10 +32,26 @@ export const updateUserResume = async ({
   });
 };
 
-export const getResumeById = async (id:string ) => {
+export const getResumeById = async (id: string) => {
   return axios({
     method: "GET",
-    url: `resume/getResumebyId/${id}`,
+    // Express routes are case-sensitive; this previously requested
+    // "getResumebyId" and every call 404'd.
+    url: `resume/getResumeById/${id}`,
+  });
+};
+
+export const setResumeVisibility = async ({
+  id,
+  isPublic,
+}: {
+  id: string;
+  isPublic: boolean;
+}) => {
+  return axios({
+    method: "PATCH",
+    url: `resume/visibility/${id}`,
+    data: { isPublic },
   });
 };
 

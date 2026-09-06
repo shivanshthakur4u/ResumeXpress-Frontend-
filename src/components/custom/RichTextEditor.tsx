@@ -17,7 +17,7 @@ import {
 import { Button } from "../ui/button";
 import { BrainCog, Loader2 } from "lucide-react";
 import { ResumeInfoContext } from "@/context/ResumeInfoContext";
-import { AIchatSession } from "@/lib/AIModal";
+import { generateExperienceBullets } from "@/lib/queries/aiQueries";
 import { toast } from "../ui/use-toast";
 
 interface RichTextEditorProps {
@@ -26,8 +26,6 @@ interface RichTextEditorProps {
   index: number;
   defvalue: string;
 }
-
-const AI_PROMPT = `Position title: {positionTitle}. Based on this position title, provide 5-7 bullet points for my experience in resume in HTML format only. Ensure the output is wrapped in appropriate HTML tags like <ul> and <li>.` as const;
 
 const EditorToolbar = memo(() => (
   <Toolbar>
@@ -45,17 +43,6 @@ const EditorToolbar = memo(() => (
 ));
 
 EditorToolbar.displayName = 'EditorToolbar';
-
-const formatToHTML = (text: string): string => {
-  const lines = text.split('\n').filter(line => line.trim());
-  const listItems = lines.map(line => `<li>${line.trim()}</li>`).join('');
-  return `<ul>${listItems}</ul>`;
-};
-
-const isValidHTML = (text: string): boolean => {
-  const htmlRegex = /<[a-z][\s\S]*>/i;
-  return htmlRegex.test(text);
-};
 
 const RichTextEditor = memo(({
   onRichTextEditorChange,
@@ -92,23 +79,19 @@ const RichTextEditor = memo(({
     setIsGenerating(true);
 
     try {
-      const prompt = AI_PROMPT.replace("{positionTitle}", experienceTitle);
-      const result = await AIchatSession.sendMessage(prompt);
-      const response = await result.response.text();
+      // Returns HTML that the server has already normalised and sanitised,
+      // since this value is rendered as markup in the resume preview.
+      const content = await generateExperienceBullets(experienceTitle);
 
-      const formattedContent = isValidHTML(response) 
-        ? response 
-        : formatToHTML(response);
-
-      setEditorValue(formattedContent);
-      onRichTextEditorChange(formattedContent);
-
-    } catch (error) {
-      console.error('AI Generation Error:', error);
+      setEditorValue(content);
+      onRichTextEditorChange(content);
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Generation Failed",
-        description: "Failed to generate summary. Please try again later.",
+        description:
+          error?.response?.data?.message ??
+          "Failed to generate summary. Please try again later.",
       });
     } finally {
       setIsGenerating(false);

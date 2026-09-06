@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ResumeInfoContext } from "@/context/ResumeInfoContext";
-import { AIchatSession } from "@/lib/AIModal";
+import { generateSummaries, type AiSummary } from "@/lib/queries/aiQueries";
 import { useUpdateResume } from "@/lib/queryHooks/resumeHooks";
 import { BrainCog, Loader2, NotebookPen } from "lucide-react";
 import { useParams } from "next/navigation";
@@ -13,13 +13,12 @@ interface SummaryFormType {
   enableNext: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const prompt =
-  "Job Title:{jobTitle}, Depends on job title give me list of  summary for 3 experience level, Mid Level and Fresher level in 3-4 lines must be unique every time in array format, With summary and experience_level Field in JSON Format";
-
 function SummaryForm({ enableNext }: SummaryFormType) {
   const { resumeInfo, setResumeInfo } = useContext(ResumeInfoContext);
   const [loading, setLoading] = useState(false);
-  const [aiGeneratedSummeryList, setAiGenerateSummeryList] = useState([]);
+  const [aiGeneratedSummeryList, setAiGenerateSummeryList] = useState<
+    AiSummary[]
+  >([]);
   const [summary, setSummary] = useState(resumeInfo?.summary);
   const [showSuggestion, setShowSuggestion]=useState(false);
   const params = useParams<{ Id: string }>();
@@ -54,14 +53,25 @@ function SummaryForm({ enableNext }: SummaryFormType) {
   // get Ai generated text summary
 
   const gerenerateSummaryFromAI = async () => {
+    if (!resumeInfo?.jobTitle?.trim()) {
+      toast.error("Add a job title first so the AI has something to work from.");
+      return;
+    }
+
     setLoading(true);
-    const PROMPT = prompt.replace("{jobTitle}", resumeInfo.jobTitle);
-    console.log("Prompt:", PROMPT);
-    const result = await AIchatSession.sendMessage(PROMPT);
-    console.log(JSON.parse(result.response.text()));
-    setAiGenerateSummeryList(JSON.parse(result.response.text()));
-   setShowSuggestion(true);
-    setLoading(false);
+    try {
+      setAiGenerateSummeryList(await generateSummaries(resumeInfo.jobTitle));
+      setShowSuggestion(true);
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message ??
+          "Couldn't generate summaries. Please try again."
+      );
+    } finally {
+      // In a finally block so a failed request cannot leave the button
+      // stuck in its loading state.
+      setLoading(false);
+    }
   };
 
   // form submission

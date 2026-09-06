@@ -1,3 +1,4 @@
+import { DatePicker } from "@/components/ui/date-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -48,10 +49,8 @@ function EducationForm({ enableNext }: EducationProps) {
     mutate: updateEducation,
   } = useUpdateResume(postAction);
 
-  const handleChnage = (e: any, index: number) => {
+  const handleChnage = (name: string, value: string, index: number) => {
     enableNext(false);
-    const { target } = e;
-    const { name, value } = target;
 
     const newEntries = [...educationalList];
     newEntries[index] = {
@@ -123,19 +122,7 @@ function EducationForm({ enableNext }: EducationProps) {
                       {field.replace(/([A-Z])/g, " $1")}
                     </label>
                     <div className="flex flex-col gap-1">
-                      <Input
-                        name={field}
-                        value={item[field as keyof FormFields] as string}
-                        onChange={(e) => handleChnage(e, index)}
-                        type={
-                          field === "startDate" || field === "endDate"
-                            ? "date"
-                            : "text"
-                        }
-                        disabled={
-                          field === "endDate" && currentlyStudying[index]
-                        }
-                      />
+                      {field === "startDate" || field === "endDate" ? <DatePicker partial aria-label={field === "startDate" ? "Start date" : "End date"} value={item[field] ?? ""} disabled={field === "endDate" && currentlyStudying[index]} onValueChange={value => handleChnage(field, value, index)}/> : <Input name={field} value={item[field as keyof FormFields] as string} onChange={e => handleChnage(e.target.name, e.target.value, index)}/>}
                       {field === "endDate" && (
                         <div>
                           <CurrentlyCheckbox
@@ -158,7 +145,7 @@ function EducationForm({ enableNext }: EducationProps) {
                 <Textarea
                   name="description"
                   value={item?.description}
-                  onChange={(e) => handleChnage(e, index)}
+                  onChange={(e) => handleChnage(e.target.name, e.target.value, index)}
                 />
               </div>
             </div>

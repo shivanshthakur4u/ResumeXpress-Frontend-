@@ -1,4 +1,5 @@
 "use client";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select } from "@/components/ui/select";
 import type { Resume } from "@/lib/types/resumeTypes";
 import { useContext, useEffect, useState } from "react";
@@ -61,7 +62,7 @@ export default function EditorControls({ saving = false, disabled = false }: { s
     {optimize.data && <div className="mt-3 space-y-2 rounded-lg bg-muted/50 p-3 text-sm" role="status"><p>{optimize.data.changed ? `${optimize.data.beforePages} pages → ${optimize.data.pages} pages using ${optimize.data.settings.fontSize} pt text and ${optimize.data.settings.spacing} spacing.` : "Your layout cannot use fewer pages within the readable settings checked. No changes proposed."}</p>{optimize.data.changed && <Button size="sm" disabled={saving || optimize.data.baseline !== JSON.stringify(resume)} onClick={() => { setResumeInfo({ ...resume, ...optimize.data!.settings }); optimize.reset(); }}>Apply layout</Button>}{optimize.data.baseline !== JSON.stringify(resume) && <p>Your resume changed. Measure again before applying.</p>}</div>}
     <p className="my-3 text-xs text-muted-foreground">{templates.find(t => t.id === resume.template)?.detail} Drag sections or use the arrow buttons to reorder. Outside text fields, Ctrl/Cmd+Z undoes and Ctrl/Cmd+Shift+Z redoes document changes.</p>
     <ul className="space-y-2">{sections.map((section, i) => <li key={section.id} draggable onDragStart={() => setDragged(i)} onDragOver={e => e.preventDefault()} onDrop={() => { if (dragged !== null) move(dragged, i); setDragged(null); }} className="flex flex-wrap items-center gap-2 rounded border p-2">
-      <label className="flex flex-1 items-center gap-2 text-sm"><input type="checkbox" checked={!section.hidden} onChange={() => setResumeInfo({ ...resume, sections: sections.map((s, n) => n === i ? { ...s, hidden: !s.hidden } : s) })}/>{section.title}</label>
+      <label className="flex flex-1 items-center gap-2 text-sm"><Checkbox  checked={!section.hidden} onCheckedChange={() => setResumeInfo({ ...resume, sections: sections.map((s, n) => n === i ? { ...s, hidden: !s.hidden } : s) })}/>{section.title}</label>
       <Button size="sm" variant="ghost" aria-label={`Move ${section.title} up`} disabled={!i} onClick={() => move(i, i - 1)}>↑</Button>
       <Button size="sm" variant="ghost" aria-label={`Move ${section.title} down`} disabled={i === sections.length - 1} onClick={() => move(i, i + 1)}>↓</Button>
       <Button size="sm" variant="ghost" disabled={sections.length >= 40} onClick={() => setResumeInfo({ ...resume, sections: [...sections, { ...section, id: crypto.randomUUID(), title: `${section.title} copy`, content: section.content ?? (section.type === "summary" ? resume.summary : (resume[section.type as "experience" | "education" | "skills"] ?? []).map(entry => Object.entries(entry).filter(([key]) => key !== "_id").map(([, value]) => String(value)).join("\n")).join("\n\n")) }] })}>Duplicate</Button>

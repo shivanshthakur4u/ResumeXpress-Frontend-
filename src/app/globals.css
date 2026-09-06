@@ -184,9 +184,6 @@ a, button, summary { -webkit-tap-highlight-color: transparent; }
 .workspace-content details > summary:not(.rx-custom-summary)::after { content: ""; position: absolute; right: 5px; top: 15px; width: 7px; height: 7px; border-right: 1.5px solid hsl(var(--muted-foreground)); border-bottom: 1.5px solid hsl(var(--muted-foreground)); transform: rotate(45deg); transition: transform 160ms ease; }
 .workspace-content details[open] > summary:not(.rx-custom-summary)::after { transform: rotate(225deg); }
 .workspace-content details > summary:hover { color: hsl(var(--primary)); }
-.workspace-content details.profile-collection > summary:not(.rx-custom-summary) { display: flex; align-items: center; gap: 12px; padding: 16px 42px 16px 16px; }
-.workspace-content details.profile-collection > summary:not(.rx-custom-summary)::after { right: 20px; top: 29px; }
-.profile-collection[open] > summary { border-bottom: 1px solid hsl(var(--border)); }
 
 .rx-select { display: flex; border-radius: 12px; }
 .rx-select-menu [role="menuitemradio"]:focus-visible { outline: none; }

@@ -1,5 +1,5 @@
-import { Input } from '@/components/ui/input';
-import React, { ChangeEvent } from 'react';
+import { Checkbox } from '@/components/ui/checkbox';
+import React from 'react';
 
 interface CurrentlyCheckboxProps {
   checked: boolean[];
@@ -9,19 +9,18 @@ interface CurrentlyCheckboxProps {
 }
 
 const CurrentlyCheckbox: React.FC<CurrentlyCheckboxProps> = ({ checked, index, setChecked, text }) => {
-  const handleCheck = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleCheck = (value: boolean | "indeterminate") => {
     const updatedChecks = [...checked];
-    updatedChecks[index] = event.target.checked;
+    updatedChecks[index] = value === true;
     setChecked(updatedChecks);
   };
 
   return (
     <div className="flex items-center  justify-end gap-1 pt-1">
-      <Input
-        type="checkbox"
+      <Checkbox
         checked={checked[index] ? checked[index]:false}
-        className="w-4 h-4"
-        onChange={handleCheck}
+        aria-label={`Currently ${text}`}
+        onCheckedChange={handleCheck}
       />
       <p className="text-sm font-medium">Currently {text}</p>
     </div>

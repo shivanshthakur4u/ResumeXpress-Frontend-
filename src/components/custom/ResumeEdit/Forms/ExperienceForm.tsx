@@ -1,3 +1,4 @@
+import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import React, { useContext, useEffect, useState } from "react";
 import RichTextEditor from "../../RichTextEditor";
@@ -51,11 +52,11 @@ function ExperienceForm({ enableNext }: ExperienceFormType) {
   const params = useParams<{ Id: string }>();
 
   const handleChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
+    name: string,
+    value: string,
     index: number
   ) => {
     enableNext(false);
-    const { name, value } = event.target;
     const updatedEntries = [...experienceList];
 
     if (name in formFields) {
@@ -141,18 +142,7 @@ function ExperienceForm({ enableNext }: ExperienceFormType) {
                 <label className="text-xs font-bold capitalize">
                   {field.replace(/([A-Z])/g, " $1")}
                 </label>
-                <Input
-                  name={field}
-                  type={
-                    field === "startDate" || field === "endDate"
-                      ? "date"
-                      : "text"
-                  }
-                  value={item[field as keyof FormFields] as string}
-                  disabled={field === "endDate" && currentlyWorking[index]}
-                  onChange={(event) => handleChange(event, index)}
-                  required={!currentlyWorking[index]}
-                />
+                {field === "startDate" || field === "endDate" ? <DatePicker partial aria-label={field === "startDate" ? "Start date" : "End date"} value={item[field] ?? ""} disabled={field === "endDate" && currentlyWorking[index]} onValueChange={value => handleChange(field, value, index)}/> : <Input name={field} value={item[field as keyof FormFields] as string} onChange={event => handleChange(event.target.name, event.target.value, index)} required={!currentlyWorking[index]}/>}
                 {field === "endDate" && (
                   <div>
                     <CurrentlyCheckbox

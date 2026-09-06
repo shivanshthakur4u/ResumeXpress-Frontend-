@@ -23,8 +23,8 @@ export const useUpdateCareerProfile = () => {
     onError: (err: any) => {
       toast.error(err?.response?.data?.message || "Some error has occured");
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: PROFILE_KEY });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: PROFILE_KEY });
       toast.success("Career profile saved");
     },
   });

@@ -37,7 +37,7 @@ function RecentActivity({ activity, resumes }: { activity: Overview["activity"];
     else groups.set(key, { ...event, count: 1 });
   }
   return <details open className="group/activity mt-6 overflow-hidden rounded-xl border bg-card">
-    <summary className="flex cursor-pointer list-none items-center gap-3 px-5 py-4 [&::-webkit-details-marker]:hidden">
+    <summary className="rx-custom-summary flex cursor-pointer list-none items-center gap-3 px-5 py-4 [&::-webkit-details-marker]:hidden">
       <History size={18} className="text-primary" aria-hidden="true"/>
       <span className="flex-1 text-sm font-semibold">Recent activity</span>
       <span className="text-xs text-muted-foreground">Latest {activity.length} events</span>

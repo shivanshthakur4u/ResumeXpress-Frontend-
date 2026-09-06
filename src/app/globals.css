@@ -177,6 +177,17 @@ body { letter-spacing: -.015em; -webkit-font-smoothing: antialiased; }
 :focus-visible { outline: 2px solid hsl(var(--primary)); outline-offset: 4px; }
 a, button, summary { -webkit-tap-highlight-color: transparent; }
 .auth-input:focus-visible { outline: none; box-shadow: none; }
+.workspace-content details > summary { position: relative; min-height: 36px; cursor: pointer; list-style: none; }
+.workspace-content details > summary::-webkit-details-marker { display: none; }
+.workspace-content details > summary::marker { content: ""; }
+.workspace-content details > summary:not(.rx-custom-summary) { padding: 8px 28px 8px 0; }
+.workspace-content details > summary:not(.rx-custom-summary)::after { content: ""; position: absolute; right: 5px; top: 15px; width: 7px; height: 7px; border-right: 1.5px solid hsl(var(--muted-foreground)); border-bottom: 1.5px solid hsl(var(--muted-foreground)); transform: rotate(45deg); transition: transform 160ms ease; }
+.workspace-content details[open] > summary:not(.rx-custom-summary)::after { transform: rotate(225deg); }
+.workspace-content details > summary:hover { color: hsl(var(--primary)); }
+.workspace-content details.profile-collection > summary:not(.rx-custom-summary) { display: flex; align-items: center; gap: 12px; padding: 16px 42px 16px 16px; }
+.workspace-content details.profile-collection > summary:not(.rx-custom-summary)::after { right: 20px; top: 29px; }
+.profile-collection[open] > summary { border-bottom: 1px solid hsl(var(--border)); }
+
 .rx-select { display: flex; border-radius: 12px; }
 .rx-select-menu [role="menuitemradio"]:focus-visible { outline: none; }
 .workspace-content progress { appearance: none; border: 0; overflow: hidden; border-radius: 999px; background: hsl(var(--muted)); }
@@ -207,7 +218,6 @@ button, a, summary { touch-action: manipulation; }
 .workspace-content > div { animation: enter .45s ease both; }
 .workspace-content h1 { letter-spacing: -.055em; line-height: 1.15; }
 .workspace-content h2 { letter-spacing: -.025em; }
-.workspace-content details > summary { min-height: 28px; }
 .workspace-content progress { accent-color: hsl(var(--primary)); }
 .workspace-content .rsw-editor { border-color: hsl(var(--input)); border-radius: 8px; overflow: hidden; }
 .workspace-content .rsw-toolbar { background: hsl(var(--secondary)); border-color: hsl(var(--border)); }

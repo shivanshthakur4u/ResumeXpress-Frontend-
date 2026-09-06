@@ -9,7 +9,7 @@ import Footer from "@/components/custom/Footer";
 
 const inter = localFont({ src: "./fonts/Inter.ttf", weight: "100 900", display: "swap" });
 export const metadata: Metadata = {
-  title: "ResumeXpress | Your career, clearly expressed",
+  title: "ResumeXpress | AI Career Studio",
   description:
     "Turn your real experience into tailored resumes, cover letters and interview preparation in one AI career workspace.",
   keywords:

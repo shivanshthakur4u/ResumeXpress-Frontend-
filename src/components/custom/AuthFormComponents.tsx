@@ -1,6 +1,6 @@
 "use client";
 import { Eye, EyeOff, KeyRound, Loader2, Mail, User } from "lucide-react";
-import { memo, useCallback, useContext, useState } from "react";
+import { memo, useCallback, useContext, useId, useState } from "react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import Link from "next/link";
@@ -34,6 +34,7 @@ export const FormInput = memo(
     showToggle,
     onToggle,
     showPassword,
+    autoComplete,
   }: {
     type: string;
     name: string;
@@ -43,22 +44,34 @@ export const FormInput = memo(
     showToggle?: boolean;
     onToggle?: () => void;
     showPassword?: boolean;
-  }) => (
-    <label className="flex items-center gap-2 border-2 py-1 px-5 rounded-lg focus-within:border-primary group input-wrapper">
-      <Icon className="h-5 w-5 icon" />
+    autoComplete?: string;
+  }) => {
+    const id = useId();
+    const label = name === "confirmPassword" ? "Confirm password" : name === "name" ? "Full name" : name === "email" ? "Email address" : "Password";
+    return <div className="space-y-2">
+    <label htmlFor={id} className="block text-xs font-medium text-foreground/80">{label}</label>
+    <div className="input-wrapper flex min-h-12 items-center gap-2 rounded-xl border border-input bg-background/50 px-3 transition-colors hover:border-muted-foreground/50 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15">
+      <Icon className="icon h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
       <Input
         type={showToggle ? (showPassword ? "text" : "password") : type}
         name={name}
-        aria-label={name === "confirmPassword" ? "Confirm password" : name}
-        autoComplete={name === "email" ? "email" : name === "name" ? "name" : "off"}
-        className="grow bg-transparent border-none outline-none hover:outline-none focus:outline-none focus:border-none focus-visible:ring-white"
+        id={id}
+        autoComplete={autoComplete ?? (name === "email" ? "email" : name === "name" ? "name" : "new-password")}
+        className="auth-input min-w-0 flex-1 rounded-none border-0 bg-transparent px-1 shadow-none focus-visible:ring-0"
+        onFocus={event => {
+          if (process.env.NODE_ENV === "development") {
+            const style = getComputedStyle(event.currentTarget);
+            console.debug("[DEBUG-RESUMEXPRESS-UI]", { control: "auth-field", field: name, outlineWidth: style.outlineWidth, innerShadow: style.boxShadow });
+          }
+        }}
         placeholder={placeholder}
         onChange={onChange}
         required
       />
-      {showToggle && <button type="button" onClick={onToggle} aria-label={showPassword ? "Hide password" : "Show password"} className="rounded p-1 text-muted-foreground hover:text-foreground">{showPassword ? <Eye size={19}/> : <EyeOff size={19}/>}</button>}
-    </label>
-  )
+      {showToggle && <button type="button" onClick={onToggle} aria-label={showPassword ? "Hide password" : "Show password"} className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">{showPassword ? <Eye size={19}/> : <EyeOff size={19}/>}</button>}
+    </div>
+    </div>;
+  }
 );
 
 FormInput.displayName = "FormInput";
@@ -149,6 +162,7 @@ const AuthFormComponents = memo(({ isSignin }: AuthFormComponentsProps) => {
           <FormInput
             type="password"
             name="password"
+            autoComplete={isSignin ? "current-password" : "new-password"}
             placeholder="Password"
             icon={KeyRound}
             onChange={handleInputChange}
@@ -191,17 +205,17 @@ const AuthFormComponents = memo(({ isSignin }: AuthFormComponentsProps) => {
           {isPending ? (
             <span className="flex gap-2 items-center">
               <Loader2 className="animate-spin" />
-              {isSignin ? "Logging in..." : "Signing up..."}
+              {isSignin ? "Signing in..." : "Creating account..."}
             </span>
           ) : isSignin ? (
-            "Login"
+            "Sign in"
           ) : (
-            "Signup"
+            "Create account"
           )}
         </Button>
       </div>
 
-      <p className="justify-center items-center text-muted-foreground gap-2 flex">
+      <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center text-sm text-muted-foreground">
         {isSignin ? "Don't" : "Already"} have an account?
         <Link
           href={`/auth/${isSignin ? "signup" : "login"}`}

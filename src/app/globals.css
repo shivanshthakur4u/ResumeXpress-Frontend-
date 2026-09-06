@@ -65,7 +65,7 @@
 }
 
 .input-wrapper:focus-within .icon {
-  color: #007dfe;
+  color: hsl(var(--primary));
 }
 
 /* A4 with a real margin. This was `size: auto; margin: 0`, which left the
@@ -176,7 +176,13 @@ body { letter-spacing: -.015em; -webkit-font-smoothing: antialiased; }
 ::selection { background: #66edce44; color: inherit; }
 :focus-visible { outline: 2px solid hsl(var(--primary)); outline-offset: 4px; }
 a, button, summary { -webkit-tap-highlight-color: transparent; }
-select { background-color: hsl(var(--background)); color: hsl(var(--foreground)); min-height: 42px; }
+.auth-input:focus-visible { outline: none; box-shadow: none; }
+.rx-select { display: flex; border-radius: 12px; }
+.rx-select-menu [role="menuitemradio"]:focus-visible { outline: none; }
+.workspace-content progress { appearance: none; border: 0; overflow: hidden; border-radius: 999px; background: hsl(var(--muted)); }
+.workspace-content progress::-webkit-progress-bar { border-radius: 999px; background: hsl(var(--muted)); }
+.workspace-content progress::-webkit-progress-value { border-radius: 999px; background: hsl(var(--primary)); }
+.workspace-content progress::-moz-progress-bar { border-radius: 999px; background: hsl(var(--primary)); }
 input, textarea { accent-color: hsl(var(--primary)); }
 button, a, summary { touch-action: manipulation; }
 .skip-link { position: fixed; left: 16px; top: -80px; z-index: 100; padding: 12px 18px; background: hsl(var(--primary)); color: #071310; border-radius: 9px; }
@@ -208,7 +214,7 @@ button, a, summary { touch-action: manipulation; }
 .workspace-content .rsw-btn:hover { background: hsl(var(--accent)); }
 .workspace-content .rsw-ce { background: transparent; }
 .resume-document, .resume-paper { color-scheme: light; --background: 0 0% 100%; --foreground: 222 30% 13%; --muted-foreground: 215 16% 40%; --border: 214 22% 85%; background: white; color: #17202b; }
-.resume-paper .text-primary { color: #007dfe; }
+.resume-paper .text-primary { color: hsl(var(--primary)); }
 .hero-stage { position: relative; isolation: isolate; overflow: hidden; background: radial-gradient(ellipse at 78% 40%,#2a7b6b16,transparent 50%); }
 .hero-stage:before { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: -1; background-image: linear-gradient(#ffffff03 1px,transparent 1px),linear-gradient(90deg,#ffffff03 1px,transparent 1px); background-size: 64px 64px; mask-image: linear-gradient(black,transparent); }
 .hero-orbit { position: absolute; right: -160px; top: 5%; width: 720px; height: 720px; border: 1px solid #66edce0c; border-radius: 50%; box-shadow: 0 0 0 75px #66edce04,0 0 0 150px #66edce02; pointer-events: none; }

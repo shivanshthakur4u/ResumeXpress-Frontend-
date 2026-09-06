@@ -5,7 +5,7 @@ import type { NextRequest } from "next/server";
 const protectedRoutes = ["/dashboard", "/dashboard/*"];
 const invalidUserRoutes = ["/auth", "/auth/*"];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = new URL(request.url);
 
   // user cookies

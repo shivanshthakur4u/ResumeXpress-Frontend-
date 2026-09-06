@@ -1,5 +1,6 @@
 import { formatDate } from "@/lib/formatdate";
 import React from "react";
+import SafeHtml from "../../SafeHtml";
 
 function ProfessionalPreview({ resumeInfo }: { resumeInfo: any }) {
   return (
@@ -37,12 +38,7 @@ function ProfessionalPreview({ resumeInfo }: { resumeInfo: any }) {
                 : experience?.endDate && formatDate(experience?.endDate)}
             </span>
           </h2>
-          <div
-            className="text-xs my-2 rsw-ce"
-            dangerouslySetInnerHTML={{
-              __html: experience?.workSummary,
-            }}
-          />
+          <SafeHtml className="text-xs my-2 rsw-ce" html={experience?.workSummary ?? ""}/>
         </div>
       ))}
     </div>

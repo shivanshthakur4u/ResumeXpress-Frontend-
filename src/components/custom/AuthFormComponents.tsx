@@ -49,20 +49,14 @@ export const FormInput = memo(
       <Input
         type={showToggle ? (showPassword ? "text" : "password") : type}
         name={name}
-        className="grow border-none outline-none hover:outline-none focus:outline-none focus:border-none focus-visible:ring-white"
+        aria-label={name === "confirmPassword" ? "Confirm password" : name}
+        autoComplete={name === "email" ? "email" : name === "name" ? "name" : "off"}
+        className="grow bg-transparent border-none outline-none hover:outline-none focus:outline-none focus:border-none focus-visible:ring-white"
         placeholder={placeholder}
         onChange={onChange}
         required
       />
-      {showToggle && (
-        <>
-          {showPassword ? (
-            <Eye onClick={onToggle} className="cursor-pointer icon" />
-          ) : (
-            <EyeOff onClick={onToggle} className="cursor-pointer icon" />
-          )}
-        </>
-      )}
+      {showToggle && <button type="button" onClick={onToggle} aria-label={showPassword ? "Hide password" : "Show password"} className="rounded p-1 text-muted-foreground hover:text-foreground">{showPassword ? <Eye size={19}/> : <EyeOff size={19}/>}</button>}
     </label>
   )
 );
@@ -79,8 +73,8 @@ const AuthFormComponents = memo(({ isSignin }: AuthFormComponentsProps) => {
   const router = useRouter();
 
   const postAction = useCallback(() => {
-    router.push("/dashboard");
-  }, [router]);
+    router.push(isSignin ? "/dashboard" : "/dashboard/ai");
+  }, [router, isSignin]);
 
   const { mutate: registerUser, isPending: isRegisterPending } =
     useRegisteruser(postAction);
@@ -130,7 +124,7 @@ const AuthFormComponents = memo(({ isSignin }: AuthFormComponentsProps) => {
   return (
     <form
       onSubmit={onSave}
-      className="flex flex-col md:gap-6 gap-3 h-full w-full md:px-20 px-6"
+      className="flex flex-col md:gap-6 gap-3 h-full w-full "
     >
       <div className="flex flex-col gap-2">
         <div className="grid grid-cols-1 gap-4 w-full">
@@ -138,7 +132,7 @@ const AuthFormComponents = memo(({ isSignin }: AuthFormComponentsProps) => {
             <FormInput
               type="text"
               name="name"
-              placeholder="Ex: Saurabh Singh"
+              placeholder="Your full name"
               icon={User}
               onChange={handleInputChange}
             />
@@ -175,7 +169,7 @@ const AuthFormComponents = memo(({ isSignin }: AuthFormComponentsProps) => {
                 onToggle={() => handleIconToggle("cnfpassword")}
                 showPassword={confirmPasswordsShow}
               />
-              {error && <p className="text-xs text-red-600">{error}</p>}
+              {error && <p className="text-xs text-red-400">{error}</p>}
             </div>
           )}
         </div>
@@ -190,15 +184,8 @@ const AuthFormComponents = memo(({ isSignin }: AuthFormComponentsProps) => {
       </div>
       <div className="flex w-full justify-between md:gap-6 gap-4">
         <Button
-          type="reset"
-          className="w-full border-primary text-primary hover:text-primary hover:bg-primary/10"
-          variant="outline"
-        >
-          Cancel
-        </Button>
-        <Button
           type="submit"
-          className="w-full border border-primary hover:bg-white hover:text-primary"
+          className="w-full h-12"
           disabled={isPending}
         >
           {isPending ? (
@@ -214,7 +201,7 @@ const AuthFormComponents = memo(({ isSignin }: AuthFormComponentsProps) => {
         </Button>
       </div>
 
-      <p className="justify-center items-center text-gray-500 gap-2 flex">
+      <p className="justify-center items-center text-muted-foreground gap-2 flex">
         {isSignin ? "Don't" : "Already"} have an account?
         <Link
           href={`/auth/${isSignin ? "signup" : "login"}`}

@@ -14,7 +14,7 @@ const ALL_SECTIONS: ImportableSection[] = [
   "summary",
   "experience",
   "education",
-  "skills",
+  "skills", "projects", "certifications", "awards", "publications", "volunteer", "languages", "interests", "leadership", "coursework", "research", "achievements",
 ];
 
 const ProfileSyncActions = ({ resumeId }: { resumeId: string }) => {
@@ -30,7 +30,7 @@ const ProfileSyncActions = ({ resumeId }: { resumeId: string }) => {
   if (confirmingImport) {
     return (
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs text-gray-600">
+        <span className="text-xs text-muted-foreground">
           Replace this resume&apos;s content with your career profile?
         </span>
         <Button

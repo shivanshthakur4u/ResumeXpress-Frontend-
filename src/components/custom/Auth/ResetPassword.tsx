@@ -67,7 +67,7 @@ const ResetPassword: FC<ResetPasswordProps> = ({ token }) => {
           <h2 className="text-4xl font-bold text-start text-primary">
             Reset Password
           </h2>
-          <p className="text-start text-gray-500">
+          <p className="text-start text-muted-foreground">
             Just type it twice and try not to forget it 😜.
           </p>
         </div>
@@ -94,11 +94,11 @@ const ResetPassword: FC<ResetPasswordProps> = ({ token }) => {
               onToggle={() => handleIconToggle("cnfpassword")}
               showPassword={confirmPasswordsShow}
             />
-            {error && <p className="text-xs text-red-600">{error}</p>}
+            {error && <p className="text-xs text-red-400">{error}</p>}
           </div>
           <Button
             type="submit"
-            className="w-full border border-primary hover:bg-white hover:text-primary"
+            className="w-full border border-primary hover:bg-card hover:text-primary"
             disabled={isPending}
           >
             {isPending ? (
@@ -113,7 +113,7 @@ const ResetPassword: FC<ResetPasswordProps> = ({ token }) => {
 
         <Link
           href={"/auth/login"}
-          className="text-lg text-gray-400 text-center hover:text-primary"
+          className="text-lg text-muted-foreground text-center hover:text-primary"
         >
           Back to signin
         </Link>

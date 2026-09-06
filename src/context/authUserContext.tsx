@@ -1,5 +1,6 @@
 "use client";
-import { createContext, ReactNode, useEffect, useState, useMemo } from "react";
+import { createContext, ReactNode, useEffect, useState, useMemo, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { updateAxiosInstance } from "@/lib/config";
 
@@ -18,6 +19,7 @@ export interface AuthContextType {
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const queryClient = useQueryClient();
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -33,20 +35,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  const updateUser = (newUser: User | null) => {
+  const updateUser = useCallback((newUser: User | null) => {
     if (newUser && newUser.token !== user?.token) {
-      Cookies.set("user", JSON.stringify(newUser), { expires: 2 });
+      queryClient.clear();
+      Cookies.set("user", JSON.stringify(newUser), { expires: 2, sameSite: "strict", secure: window.location.protocol === "https:" });
       updateAxiosInstance(newUser.token);
       setUser(newUser);
     } else if (!newUser) {
       Cookies.remove("user");
+      queryClient.clear();
+      updateAxiosInstance("");
       setUser(null);
     }
-  };
+  }, [user?.token, queryClient]);
 
   const contextValue = useMemo(
     () => ({ user, setUser: updateUser }),
-    [user]
+    [user, updateUser]
   );
 
   return (

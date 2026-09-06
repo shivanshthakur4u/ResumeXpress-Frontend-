@@ -8,7 +8,18 @@ export interface createNewResumeType {
 
 // Resume data type
 export interface Resume {
-  resumeInfo: Experience;
+  _id?: string;
+  title?: string;
+  template?: string;
+  paperSize?: "A4" | "Letter";
+  typography?: "sans" | "serif" | "mono";
+  fontSize?: number;
+  spacing?: number;
+  targetRole?: string;
+  targetIndustry?: string;
+  targetJob?: string | null;
+  status?: "draft" | "ready" | "archived";
+  sections?: ResumeSection[];
   firstName: string;
   lastName: string;
   jobTitle: string;
@@ -49,4 +60,13 @@ export interface Education {
 export interface Skill {
   name: string;
   rating: number;
+}
+
+export interface ResumeSection {
+  id: string;
+  type: string;
+  title: string;
+  hidden: boolean;
+  content?: string;
+  entries?: Record<string, string | string[]>[];
 }

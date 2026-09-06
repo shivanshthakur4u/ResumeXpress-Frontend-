@@ -49,12 +49,12 @@ const LogoutDropdown = memo(({ isOpen, onClose, onLogout }: DropdownProps) => {
   return (
     <div
       ref={dropdownRef}
-      className="absolute bg-white shadow-md border w-[120px] right-0 py-4 px-5 rounded-lg mt-1 z-50"
+      className="absolute bg-card shadow-md border w-[120px] right-0 py-4 px-5 rounded-lg mt-1 z-50"
       role="dialog"
       aria-label="User menu"
     >
       <button
-        className="w-full text-left text-gray-500 hover:text-red-500 flex items-center gap-2 transition-colors"
+        className="w-full text-left text-muted-foreground hover:text-red-500 flex items-center gap-2 transition-colors"
         onClick={onLogout}
         aria-label="Logout"
       >

@@ -18,17 +18,17 @@ export const useCreateNewResume = () => {
       toast.error(err?.response?.data?.message || "Some error has occured");
     },
     onSuccess: (data) => {
-      console.log("created data:", data);
-      toast.success("New Resume Created Succesfully");
+
+      toast.success("Your resume workspace is ready");
       router.push("/dashboard/resume/" + data?.data?._id + "/edit");
     },
   });
 };
 
-export const useGetUserResumes = ({page,limit}:{page:number, limit:number}) => {
+export const useGetUserResumes = ({page,limit,search="",sort="newest"}:{page:number, limit:number,search?:string,sort?:string}) => {
   return useQuery({
-    queryKey: ["user-resumes", page],
-    queryFn: async () => await getUserResumes({page, limit}),
+    queryKey: ["user-resumes", page, limit, search, sort],
+    queryFn: async () => await getUserResumes({page, limit, search, sort}),
     select: (data) => data?.data,
   });
 };
@@ -48,6 +48,8 @@ export const useUpdateResume = (postAction?:()=>void) => {
 export const useGetResumeById = (id: string) => {
   return useQuery({
     queryKey: ["resume-by-id", id],
+    enabled: Boolean(id),
+    refetchOnWindowFocus: false,
     queryFn: async () => await getResumeById(id),
     select: (data) => data?.data?.resume,
   });

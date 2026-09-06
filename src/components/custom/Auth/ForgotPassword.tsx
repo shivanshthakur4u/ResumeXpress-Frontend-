@@ -41,7 +41,7 @@ function ForgotPassword() {
           <h2 className="text-4xl font-bold text-start text-primary">
             Forgot Your Password?
           </h2>
-          <p className="text-start text-gray-500">
+          <p className="text-start text-muted-foreground">
             No worries, we will send you reset instruction
           </p>
         </div>
@@ -57,7 +57,7 @@ function ForgotPassword() {
 
           <Button
             type="submit"
-            className="w-full border border-primary hover:bg-white hover:text-primary"
+            className="w-full border border-primary hover:bg-card hover:text-primary"
             disabled={isPending}
           >
             {isPending ? (
@@ -69,7 +69,7 @@ function ForgotPassword() {
             )}
           </Button>
         </div>
-        <p className="justify-center items-center text-gray-500 gap-2 flex">
+        <p className="justify-center items-center text-muted-foreground gap-2 flex">
           Don&apos;t have an account?
           <Link href={`/auth/signup`} className="text-primary font-bold">
             Sign up
@@ -78,7 +78,7 @@ function ForgotPassword() {
 
         <Link
           href={"/auth/login"}
-          className="text-lg text-gray-400 text-center hover:text-primary"
+          className="text-lg text-muted-foreground text-center hover:text-primary"
         >
           Back to signin
         </Link>

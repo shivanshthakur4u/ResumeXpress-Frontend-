@@ -9,7 +9,8 @@ const axiosInstance = axios.create({
 });
 
 export const updateAxiosInstance = (token: string) => {
-  axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  if (token) axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  else delete axiosInstance.defaults.headers.common["Authorization"];
 };
 
 const userCookie = Cookies.get("user");
@@ -22,4 +23,11 @@ if (userCookie) {
   }
 }
 
+axiosInstance.interceptors.response.use(response => response, error => {
+  if (error.response?.status === 401 && typeof window !== "undefined") {
+    Cookies.remove("user"); updateAxiosInstance("");
+    if (window.location.pathname.startsWith("/dashboard")) window.location.assign("/auth/login");
+  }
+  return Promise.reject(error);
+});
 export { axiosInstance as axios };

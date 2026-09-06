@@ -1,5 +1,6 @@
 "use client";
-import Header from "@/components/custom/Header";
+import Image from "next/image";
+import { axios } from "@/lib/config";
 import PreviewSection from "@/components/custom/ResumeEdit/PreviewSection";
 import SharePageLoader from "@/components/custom/SharePageLoader";
 import { Button } from "@/components/ui/button";
@@ -31,11 +32,20 @@ function ResumeView() {
     setResumeInfo(data);
   }, [data]);
 
-  const handleDownload = () => {
-    if (typeof window !== "undefined") {
-      window.print();
-    }
+  const [qr, setQr] = useState("");
+  useEffect(() => () => { if (qr) URL.revokeObjectURL(qr); }, [qr]);
+  const [slug, setSlug] = useState("");
+  const [downloading, setDownloading] = useState(false);
+  const handleDownload = async () => {
+    setDownloading(true);
+    try {
+      const response = await axios.get(`resume/${params.Id}/pdf`, { responseType: "blob" });
+      const url = URL.createObjectURL(response.data);
+      const anchor = document.createElement("a"); anchor.href = url; anchor.download = "resume.pdf"; anchor.click(); URL.revokeObjectURL(url);
+    } catch { toast.error("Could not export PDF. Please try again."); }
+    finally { setDownloading(false); }
   };
+  if (isError) return <p role="alert" className="p-8 text-center">This resume is private, unavailable, or could not be loaded.</p>;
   return (
     <ResumeInfoProvider>
       <div className="flex flex-col w-full">
@@ -62,6 +72,7 @@ function ResumeView() {
                 professional networks.
               </p>
 
+              {isOwner && <div className="mx-6 mt-6 rounded-lg border p-4"><label className="text-sm">Public URL slug<input aria-label="Public URL slug" className="mx-2 rounded border p-2" value={slug || resumeInfo?.publicSlug || ""} onChange={e => setSlug(e.target.value)}/></label><Button variant="outline" onClick={async () => { try { await axios.patch(`resume/${params.Id}/slug`, { slug }); setResumeInfo({ ...resumeInfo, publicSlug: slug }); toast.success("Public URL saved"); } catch { toast.error("Choose a unique slug using lowercase letters, numbers and hyphens."); } }}>Save URL</Button>{resumeInfo?.publicSlug && <p className="mt-3 text-sm">Public URL: /u/{resumeInfo.publicSlug} · Views: {resumeInfo.publicViews ?? 0}</p>}</div>}
               {isOwner && (
                 <div className="mx-6 lg:mx-44 mt-8 rounded-lg border p-4">
                   <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -103,15 +114,16 @@ function ResumeView() {
                 </div>
               )}
 
+              {isOwner && isPublic && <div className="mx-6 mt-4"><Button variant="outline" onClick={async () => { try { const response = await axios.get(`resume/${params.Id}/qr`, { responseType: "blob" }); setQr(URL.createObjectURL(response.data)); } catch { toast.error("Could not create QR code"); } }}>Create share QR code</Button>{qr && <a href={qr} download="resume-qr.png"><Image unoptimized src={qr} width={256} height={256} alt="QR code linking to this public resume"/></a>}</div>}
               <div className="flex justify-between lg:px-44 px-6 my-10 items-center">
                 <Button
-                  disabled={isLoading}
+                  disabled={isLoading || downloading}
                   id="downloadButton"
                   onClick={handleDownload}
                   className="flex gap-2"
                 >
                   <FileDown size={18} />
-                  Download
+                  {downloading ? "Preparing PDF..." : "Download PDF"}
                 </Button>
 
                 {isOwner && !isPublic ? (
@@ -132,7 +144,7 @@ function ResumeView() {
                   <RWebShare
                     data={{
                       text: "Please find the link to my resume below for your review:",
-                      url: `${process.env.NEXT_PUBLIC_BASE_URL}/my-resume/${params?.Id}/view`,
+                      url: resumeInfo?.publicSlug ? `${process.env.NEXT_PUBLIC_BASE_URL}/u/${resumeInfo.publicSlug}` : `${process.env.NEXT_PUBLIC_BASE_URL}/my-resume/${params?.Id}/view`,
                       title: `${resumeInfo?.firstName} ${resumeInfo?.lastName}`,
                     }}
                     onClick={() => toast.success("shared successfully!")}

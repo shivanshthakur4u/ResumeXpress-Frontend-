@@ -1,5 +1,6 @@
 "use client";
 
+import ProfileCollections, { profileFields, type Collections } from "@/components/custom/ProfileCollections";
 import { FormEvent, useEffect, useState } from "react";
 import { Check, Loader2, UserRoundCog } from "lucide-react";
 
@@ -38,7 +39,7 @@ const CompletenessMeter = ({ completeness }: { completeness: Completeness }) => 
     </div>
 
     <div
-      className="mt-3 h-2 w-full rounded-full bg-gray-200"
+      className="mt-3 h-2 w-full rounded-full bg-secondary"
       role="progressbar"
       aria-valuenow={completeness.score}
       aria-valuemin={0}
@@ -56,20 +57,20 @@ const CompletenessMeter = ({ completeness }: { completeness: Completeness }) => 
         <li
           key={section.key}
           className={`flex items-center gap-2 text-sm ${
-            section.complete ? "text-gray-500" : "text-gray-900"
+            section.complete ? "text-muted-foreground" : "text-foreground"
           }`}
         >
           {section.complete ? (
             <Check className="h-4 w-4 text-primary" />
           ) : (
             <span
-              className="h-4 w-4 rounded-full border border-gray-300"
+              className="h-4 w-4 rounded-full border border-border"
               aria-hidden
             />
           )}
           {section.label}
           {!section.complete && (
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-muted-foreground">
               (+{section.weight}%)
             </span>
           )}
@@ -91,7 +92,7 @@ const SyncedSections = ({ profile }: { profile: CareerProfile }) => {
   return (
     <div className="rounded-lg border p-5">
       <h2 className="font-bold">From your resumes</h2>
-      <p className="mt-1 text-sm text-gray-500">
+      <p className="mt-1 text-sm text-muted-foreground">
         Edit these in a resume, then use{" "}
         <span className="font-medium">Save to career profile</span> to bring them
         here. Any resume can then import them back.
@@ -99,7 +100,7 @@ const SyncedSections = ({ profile }: { profile: CareerProfile }) => {
       <dl className="mt-4 grid grid-cols-3 gap-4">
         {counts.map((c) => (
           <div key={c.label}>
-            <dt className="text-xs text-gray-500">{c.label}</dt>
+            <dt className="text-xs text-muted-foreground">{c.label}</dt>
             <dd className="text-xl font-semibold">{c.value}</dd>
           </div>
         ))}
@@ -113,6 +114,8 @@ const CareerProfilePage = () => {
   const { mutate: save, isPending } = useUpdateCareerProfile();
 
   const [form, setForm] = useState<Record<string, string>>({});
+  const [collections, setCollections] = useState<Collections>({});
+  const [interests, setInterests] = useState("");
   const [targetRoles, setTargetRoles] = useState("");
 
   const profile: CareerProfile | undefined = data?.profile;
@@ -124,6 +127,8 @@ const CareerProfilePage = () => {
     for (const { key } of TEXT_FIELDS) next[key] = profile[key] ?? "";
     next.summary = profile.summary ?? "";
     setForm(next);
+    setCollections(Object.fromEntries(Object.keys(profileFields).map(key => [key, (profile as unknown as Collections)[key] ?? []])));
+    setInterests(((profile as unknown as { interests?: string[] }).interests ?? []).join(", "));
     setTargetRoles((profile.preferences?.targetRoles ?? []).join(", "));
   }, [profile]);
 
@@ -131,6 +136,8 @@ const CareerProfilePage = () => {
     e.preventDefault();
     save({
       ...form,
+      ...collections,
+      interests: interests.split(",").map(s => s.trim()).filter(Boolean),
       preferences: {
         targetRoles: targetRoles
           .split(",")
@@ -157,7 +164,7 @@ const CareerProfilePage = () => {
           <UserRoundCog className="h-6 w-6 text-primary" />
           <div>
             <h1 className="text-2xl font-bold">Career profile</h1>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               Your master record. Every resume can be built from it, so you only
               enter this once.
             </p>
@@ -181,7 +188,7 @@ const CareerProfilePage = () => {
                     <div key={key}>
                       <label
                         htmlFor={key}
-                        className="text-xs font-bold text-gray-700"
+                        className="text-xs font-bold text-foreground"
                       >
                         {label}
                       </label>
@@ -213,7 +220,7 @@ const CareerProfilePage = () => {
 
               <div className="rounded-lg border p-5">
                 <h2 className="font-bold">Target roles</h2>
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 text-sm text-muted-foreground">
                   Comma separated. Used to tailor resumes to the roles you want.
                 </p>
                 <Input
@@ -224,7 +231,8 @@ const CareerProfilePage = () => {
                 />
               </div>
 
-              <SyncedSections profile={profile} />
+              <ProfileCollections values={collections} onChange={setCollections}/>
+              <label className="block text-sm">Interests (comma separated)<Input value={interests} onChange={e => setInterests(e.target.value)}/></label>
 
               <div className="flex justify-end">
                 <Button type="submit" disabled={isPending} className="flex gap-2">

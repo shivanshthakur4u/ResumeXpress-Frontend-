@@ -52,4 +52,4 @@ export type ImportableSection =
   | "summary"
   | "experience"
   | "education"
-  | "skills";
+  | "skills" | "projects" | "certifications" | "awards" | "publications" | "volunteer" | "languages" | "interests" | "leadership" | "coursework" | "research" | "achievements";

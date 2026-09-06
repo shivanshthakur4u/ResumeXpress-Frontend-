@@ -1,80 +1,12 @@
-import CVIcon from "@/assets/CvIcon";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreVertical, Notebook } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { ArrowUpRight, MoreHorizontal, FileText } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import DeleteResumePopup from "./DeleteResumePopup";
-
-function ResumeCardItems({
-  resume,
-  resumeId,
-}: {
-  resume: any;
-  resumeId: string;
-}) {
-  // console.log("resume data card:", resume);
-  const [showDelDialog, setShowDelDialog] = useState(false);
-  const router = useRouter();
-  return (
-    <div
-      className="bg-gradient-to-b
-    from-blue-100 via-purple-200 to-blue-300
-  h-[280px] rounded-lg border-t-4 cursor-pointer  hover:scale-105"
-      style={{
-        borderColor: resume?.themeColor || "#007DFE",
-      }}
-    >
-      <Link href={"/dashboard/resume/" + resumeId + "/edit"}>
-        <div className="flex justify-center items-center h-[228px]">
-          <CVIcon />
-        </div>
-      </Link>
-      <div
-        className="self-end float-end  h-12 w-full 
-      flex rounded-b-lg justify-between items-center px-4"
-        style={{
-          background: resume?.themeColor || "#007DFE",
-        }}
-      >
-        <p className="text-white text-sm">
-            {resume?.title?.length > 40 ? `${resume?.title.slice(0, 40)}...`: resume?.title}
-          </p>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <MoreVertical size={24} color="#fff" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem
-              onClick={() =>
-                router.push("/dashboard/resume/" + resumeId + "/edit")
-              }
-            >
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => router.push("/my-resume/" + resumeId + "/view")}
-            >
-              View
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => router.push("/my-resume/" + resumeId + "/view")}
-            >
-              Download
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={()=>setShowDelDialog(true)}>Delete</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-      <DeleteResumePopup open={showDelDialog} setOpen={setShowDelDialog} resumeId={resumeId} />
-    </div>
-  );
+import type { Resume } from "@/lib/types/resumeTypes";
+type CardResume = Resume & { updatedAt?: string; latestAtsScore?: number | null; atsStale?: boolean };
+export default function ResumeCardItems({resume,resumeId}:{resume:CardResume;resumeId:string}) {
+  const [showDelDialog,setShowDelDialog]=useState(false); const router=useRouter();
+  return <article className="resume-card"><Link className="resume-card-preview" href={`/dashboard/resume/${resumeId}/edit`} aria-label={`Edit ${resume.title}`}><div className="mini-paper"><div className="mini-accent" style={{background:resume.themeColor||"#31806e"}}/><p className="truncate text-[15px] font-semibold text-slate-900">{[resume.firstName,resume.lastName].filter(Boolean).join(" ")||"Your name"}</p><p className="mt-1 truncate text-[8px] uppercase tracking-widest text-slate-500">{resume.jobTitle||resume.targetRole||"Your next opportunity"}</p><div className="mt-4 border-t border-slate-200 pt-3"><p className="text-[7px] font-semibold tracking-widest text-slate-700">PROFILE</p><p className="mt-2 line-clamp-3 text-[8px] leading-relaxed text-slate-500">{resume.summary||"Your experience, clearly expressed. Open the AI writer to create your first draft."}</p></div><p className="mt-4 text-[7px] font-semibold tracking-widest text-slate-700">{resume.experience?.[0]?.title||"EXPERIENCE"}</p><div className="paper-line"/><div className="paper-line w-4/5"/></div><span className="resume-open"><ArrowUpRight size={19}/></span></Link><div className="p-4"><div className="flex items-start justify-between gap-3"><Link className="min-w-0" href={`/dashboard/resume/${resumeId}/edit`}><h3 className="truncate text-sm font-semibold">{resume.title}</h3><p className="mt-1 text-xs text-muted-foreground">{resume.targetRole||"Add a target role"}</p></Link><DropdownMenu><DropdownMenuTrigger aria-label={`Actions for ${resume.title}`} className="rounded-md p-1 text-muted-foreground hover:bg-accent"><MoreHorizontal size={20}/></DropdownMenuTrigger><DropdownMenuContent>{["Edit","Preview & download"].map((action,i)=><DropdownMenuItem key={action} onClick={()=>router.push(i?`/my-resume/${resumeId}/view`:`/dashboard/resume/${resumeId}/edit`)}>{action}</DropdownMenuItem>)}<DropdownMenuItem onClick={()=>setShowDelDialog(true)}>Delete</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div><div className="mt-4 flex items-center justify-between text-[10px] text-muted-foreground"><span className="flex items-center gap-1.5"><FileText size={12}/>{resume.template==='legacy'?'Original':resume.template||'Original'}</span><span className={`status-pill ${resume.status==='ready'?'ready':''}`}>{resume.status||'draft'}</span></div>{resume.latestAtsScore!==undefined&&<p className="mt-3 text-xs text-muted-foreground">{resume.latestAtsScore===null?'No ATS review yet':`Last ATS: ${resume.latestAtsScore}%${resume.atsStale?' · Review outdated':''}`}</p>}</div><DeleteResumePopup open={showDelDialog} setOpen={setShowDelDialog} resumeId={resumeId}/></article>;
 }
-
-export default ResumeCardItems;

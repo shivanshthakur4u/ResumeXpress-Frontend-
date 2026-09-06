@@ -27,7 +27,7 @@ function PaginationComponent({
           <PaginationItem>
             <PaginationPrevious
               href={`/dashboard?page=${currentPage}`}
-              onClick={() => handlePageChange(currentPage - 1)}
+              onClick={e => { e.preventDefault(); handlePageChange(currentPage - 1); }}
               className="hover:bg-primary/10 text-primary hover:text-primary"
             />
           </PaginationItem>
@@ -35,7 +35,7 @@ function PaginationComponent({
             <PaginationItem key={index + 1}>
               <PaginationLink
                 href={`/dashboard?page=${index + 1}`}
-                onClick={() => handlePageChange(index + 1)}
+                onClick={e => { e.preventDefault(); handlePageChange(index + 1); }}
                 isActive={Boolean(index + 1 === currentPage)}
                 className="border-primary hover:bg-primary/10 text-primary hover:text-primary"
               >
@@ -52,7 +52,7 @@ function PaginationComponent({
             <PaginationNext
               className="hover:bg-primary/10 text-primary hover:text-primary"
               href={`/dashboard?page=${currentPage}`}
-              onClick={() => handlePageChange(currentPage + 1)}
+              onClick={e => { e.preventDefault(); handlePageChange(currentPage + 1); }}
               
             />
           </PaginationItem>

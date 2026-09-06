@@ -1,14 +1,10 @@
 "use client";
-
 import { useEffect, useRef, useState } from "react";
-import { useMutation } from "@tanstack/react-query";
 import { updateUserResume } from "../queries/resumeCRUD";
-
+import { useQueryClient } from "@tanstack/react-query";
 export type SaveStatus = "idle" | "saving" | "saved" | "error";
-
-// Only the resume's own writable fields. The context object also carries
-// server-side extras such as isOwner and isPublic, which are not editable here.
 const AUTOSAVE_FIELDS = [
+  "title", "template", "paperSize", "typography", "fontSize", "spacing", "sections", "targetRole", "targetIndustry", "targetJob", "status",
   "firstName",
   "lastName",
   "jobTitle",
@@ -22,57 +18,45 @@ const AUTOSAVE_FIELDS = [
   "skills",
 ] as const;
 
-const pickSaveableFields = (data: any): Record<string, unknown> | null => {
-  if (!data) return null;
-  const out: Record<string, unknown> = {};
-  for (const field of AUTOSAVE_FIELDS) {
-    if (data[field] !== undefined) out[field] = data[field];
-  }
-  return Object.keys(out).length > 0 ? out : null;
-};
 
-export const useAutosave = ({
-  id,
-  data,
-  delay = 1500,
-}: {
-  id?: string;
-  data: any;
-  delay?: number;
-}): SaveStatus => {
+export const useAutosave = ({ id, data, serverData, paused = false, delay = 1500 }: { id?: string; data: Record<string, unknown> | undefined; serverData?: Record<string, unknown>; paused?: boolean; delay?: number }): SaveStatus => {
   const [status, setStatus] = useState<SaveStatus>("idle");
-  const lastSavedRef = useRef<string | null>(null);
-
-  const { mutate } = useMutation({
-    mutationFn: updateUserResume,
-    onSuccess: (_res, variables) => {
-      lastSavedRef.current = JSON.stringify(variables.formData);
-      setStatus("saved");
-    },
-    // Deliberately no toast: autosave runs on a timer, and a failing network
-    // would otherwise produce a stream of them. The status line reports it once.
-    onError: () => setStatus("error"),
-  });
-
+  const state = useRef({ id: "", saved: "", pending: "", running: false, failed: false });
+  const client = useQueryClient();
+  const acceptedServerData = useRef<Record<string, unknown>>();
+  const serialized = data ? JSON.stringify(Object.fromEntries(AUTOSAVE_FIELDS.filter(key => data[key] !== undefined).map(key => [key, data[key]]))) : "";
   useEffect(() => {
-    const payload = pickSaveableFields(data);
-    if (!id || !payload) return;
-
-    const serialized = JSON.stringify(payload);
-
-    // The first payload after load is the server's own copy, so there is
-    // nothing to write back.
-    if (lastSavedRef.current === null) {
-      lastSavedRef.current = serialized;
-      return;
-    }
-
-    if (serialized === lastSavedRef.current) return;
-
-    setStatus("saving");
-    const timer = setTimeout(() => mutate({ formData: payload, id }), delay);
-    return () => clearTimeout(timer);
-  }, [data, id, delay, mutate]);
-
+    if (!id || !serialized) return;
+    const current = state.current;
+    if (current.id !== id) { state.current = { id, saved: serialized, pending: serialized, running: false, failed: false }; setStatus("idle"); return; }
+    current.pending = serialized;
+    if (current.pending !== current.saved) setStatus("saving");
+  }, [id, serialized]);
+  useEffect(() => {
+    if (!serverData || serverData === acceptedServerData.current || state.current.running) return;
+    const baseline = JSON.stringify(Object.fromEntries(AUTOSAVE_FIELDS.filter(key => serverData[key] !== undefined).map(key => [key, serverData[key]])));
+    if (baseline === state.current.pending) { state.current.saved = baseline; acceptedServerData.current = serverData; setStatus("saved"); }
+  }, [serverData, serialized]);
+  useEffect(() => {
+    const timer = setInterval(async () => {
+      const current = state.current;
+      if (paused || !current.id || current.running || current.saved === current.pending) return;
+      const payload = current.pending;
+      current.running = true;
+      try {
+        await updateUserResume({ id: current.id, formData: JSON.parse(payload) });
+        current.saved = payload;
+        current.failed = false;
+        if (current === state.current) setStatus(current.pending === payload ? "saved" : "saving");
+        client.invalidateQueries({ queryKey: ["versions", current.id] });
+      } catch {
+        current.failed = true;
+        if (current === state.current) setStatus("error");
+      } finally { current.running = false; }
+    }, delay);
+    const warn = (event: BeforeUnloadEvent) => { if (state.current.pending !== state.current.saved) { event.preventDefault(); event.returnValue = ""; } };
+    window.addEventListener("beforeunload", warn);
+    return () => { clearInterval(timer); window.removeEventListener("beforeunload", warn); };
+  }, [delay, client, paused]);
   return status;
 };

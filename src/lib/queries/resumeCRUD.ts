@@ -11,10 +11,11 @@ export const createNewResume = async (formData: any) => {
   });
 };
 
-export const getUserResumes = async ({page,limit}:{page:number, limit:number}) => {
+export const getUserResumes = async ({page,limit,search="",sort="newest"}:{page:number, limit:number,search?:string,sort?:string}) => {
   return axios({
     method: "GET",
-    url: `resume/getResumes?page=${page}&limit=${limit}`,
+    url: "resume/getResumes",
+    params: { page, limit, search, sort },
   });
 };
 

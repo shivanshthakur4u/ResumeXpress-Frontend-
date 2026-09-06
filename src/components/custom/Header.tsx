@@ -19,7 +19,15 @@ function Header() {
       </Link>
       {user ? (
         <div className="flex gap-2 items-center">
-         
+          <Link href={"/dashboard/career-profile"}>
+            <Button
+              variant={"outline"}
+              className="text-primary hover:text-primary hover:bg-primary/10 max-sm:hidden"
+            >
+              Career Profile
+            </Button>
+          </Link>
+
           <Link href={"/dashboard"}>
             <Button
               variant={"outline"}

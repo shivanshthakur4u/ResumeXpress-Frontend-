@@ -6,6 +6,7 @@ import { Check, CloudOff, Loader2 } from "lucide-react";
 
 import FormSection from "@/components/custom/ResumeEdit/FormSection";
 import PreviewSection from "@/components/custom/ResumeEdit/PreviewSection";
+import ProfileSyncActions from "@/components/custom/ResumeEdit/ProfileSyncActions";
 import {
   ResumeInfoContext,
   ResumeInfoProvider,
@@ -53,7 +54,8 @@ const ResumeEditor = () => {
 
   return (
     <>
-      <div className="flex justify-end px-5 pt-5 md:px-10">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-5 pt-5 md:px-10">
+        <ProfileSyncActions resumeId={params?.Id} />
         <SaveStatusIndicator status={saveStatus} />
       </div>
       <div className="grid grid-cols-1 gap-10 p-5 md:p-10 md:pt-2 lg:grid-cols-2">

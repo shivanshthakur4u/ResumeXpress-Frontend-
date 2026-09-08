@@ -62,3 +62,10 @@ export const deleteResumeById = async(id:string)=>{
     url:`resume/deleteResumeById/${id}`
   })
 }
+
+export const getResumeAuthenticity = async (id: string) => {
+  return axios({
+    method: "GET",
+    url: `resume/${id}/authenticity`,
+  });
+};

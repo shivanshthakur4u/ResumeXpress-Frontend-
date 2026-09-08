@@ -2,11 +2,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createNewResume,
   deleteResumeById,
+  getResumeAuthenticity,
   getResumeById,
   getUserResumes,
   setResumeVisibility,
   updateUserResume,
 } from "../queries/resumeCRUD";
+import type { AuthenticityResult } from "../types/authenticityTypes";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
@@ -70,6 +72,18 @@ export const useSetResumeVisibility = (id: string) => {
           : "This resume is now private"
       );
     },
+  });
+};
+
+// Not refetched on every keystroke: the check is cheap but the result is a
+// reading exercise, so it refreshes on demand rather than flickering as you type.
+export const useResumeAuthenticity = (id: string) => {
+  return useQuery({
+    queryKey: ["resume-authenticity", id],
+    queryFn: async () => await getResumeAuthenticity(id),
+    select: (data) => data?.data as AuthenticityResult,
+    enabled: Boolean(id),
+    staleTime: 30_000,
   });
 };
 

@@ -69,3 +69,10 @@ export const getResumeAuthenticity = async (id: string) => {
     url: `resume/${id}/authenticity`,
   });
 };
+
+export const getResumeMachineView = async (id: string) => {
+  return axios({
+    method: "GET",
+    url: `resume/${id}/machine-view`,
+  });
+};

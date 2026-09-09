@@ -4,11 +4,13 @@ import {
   deleteResumeById,
   getResumeAuthenticity,
   getResumeById,
+  getResumeMachineView,
   getUserResumes,
   setResumeVisibility,
   updateUserResume,
 } from "../queries/resumeCRUD";
 import type { AuthenticityResult } from "../types/authenticityTypes";
+import type { MachineViewResult } from "../types/machineViewTypes";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
@@ -83,6 +85,17 @@ export const useResumeAuthenticity = (id: string) => {
     queryFn: async () => await getResumeAuthenticity(id),
     select: (data) => data?.data as AuthenticityResult,
     enabled: Boolean(id),
+    staleTime: 30_000,
+  });
+};
+
+export const useResumeMachineView = (id: string) => {
+  return useQuery({
+    queryKey: ["resume-machine-view", id],
+    queryFn: async () => await getResumeMachineView(id),
+    select: (data) => data?.data as MachineViewResult,
+    enabled: Boolean(id),
+    refetchOnWindowFocus: false,
     staleTime: 30_000,
   });
 };

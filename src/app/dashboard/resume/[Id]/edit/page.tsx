@@ -10,6 +10,7 @@ import FormSection from "@/components/custom/ResumeEdit/FormSection";
 import PreviewSection from "@/components/custom/ResumeEdit/PreviewSection";
 import ProfileSyncActions from "@/components/custom/ResumeEdit/ProfileSyncActions";
 import AuthenticityPanel from "@/components/custom/ResumeEdit/AuthenticityPanel";
+import MachineViewPanel from "@/components/custom/ResumeEdit/MachineViewPanel";
 import {
   ResumeInfoContext,
   ResumeInfoProvider,
@@ -65,6 +66,7 @@ const ResumeEditor = () => {
       <div className="grid grid-cols-1 items-start gap-7 p-5 sm:p-8 lg:grid-cols-2"><div id="editor-panel" className={editorView === "edit" ? "min-w-0" : "hidden min-w-0 lg:block"}><FormSection saving={saveStatus === "saving" || saveStatus === "error"} applying={aiApplying} onApplying={setAiApplying}/></div><section id="preview-panel" aria-label="Live resume preview" className={`${editorView === "preview" ? "block" : "hidden lg:block"} min-w-0 lg:sticky lg:top-[100px]`}><div className="mb-3 flex items-center justify-between"><p className="eyebrow flex items-center gap-2"><Eye size={14}/>LIVE DOCUMENT</p><span className="status-pill text-[10px] text-muted-foreground">{resumeInfo?.paperSize || "A4"} · {resumeInfo?.template || "Original"}</span></div><div className="editor-preview"><PreviewSection/></div><p className="mt-3 text-center text-[11px] text-muted-foreground">PDF pagination is checked when you export.</p></section></div>
       <div className="px-5 pb-8 sm:px-8">
         <AuthenticityPanel resumeId={params?.Id} />
+        <MachineViewPanel resumeId={params?.Id} />
       </div>
     </>
   );

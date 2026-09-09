@@ -11,6 +11,7 @@ import PreviewSection from "@/components/custom/ResumeEdit/PreviewSection";
 import ProfileSyncActions from "@/components/custom/ResumeEdit/ProfileSyncActions";
 import AuthenticityPanel from "@/components/custom/ResumeEdit/AuthenticityPanel";
 import MachineViewPanel from "@/components/custom/ResumeEdit/MachineViewPanel";
+import EvidencePanel from "@/components/custom/ResumeEdit/EvidencePanel";
 import {
   ResumeInfoContext,
   ResumeInfoProvider,
@@ -67,6 +68,7 @@ const ResumeEditor = () => {
       <div className="px-5 pb-8 sm:px-8">
         <AuthenticityPanel resumeId={params?.Id} />
         <MachineViewPanel resumeId={params?.Id} />
+        <EvidencePanel resumeId={params?.Id} />
       </div>
     </>
   );

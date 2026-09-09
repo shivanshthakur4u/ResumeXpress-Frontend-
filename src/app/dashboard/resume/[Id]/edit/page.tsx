@@ -13,6 +13,7 @@ import AuthenticityPanel from "@/components/custom/ResumeEdit/AuthenticityPanel"
 import MachineViewPanel from "@/components/custom/ResumeEdit/MachineViewPanel";
 import EvidencePanel from "@/components/custom/ResumeEdit/EvidencePanel";
 import LiabilityPanel from "@/components/custom/ResumeEdit/LiabilityPanel";
+import ScanPanel from "@/components/custom/ResumeEdit/ScanPanel";
 import {
   ResumeInfoContext,
   ResumeInfoProvider,
@@ -71,6 +72,7 @@ const ResumeEditor = () => {
         <MachineViewPanel resumeId={params?.Id} />
         <EvidencePanel resumeId={params?.Id} />
         <LiabilityPanel resumeId={params?.Id} />
+        <ScanPanel resumeId={params?.Id} />
       </div>
     </>
   );

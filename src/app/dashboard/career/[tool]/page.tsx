@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
+import OutcomeInsights from "@/components/custom/OutcomeInsights";
 
 type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
 interface Suggestion { field: string; index?: number; current: string; suggested: string; reason: string; confidence: number; evidence: string[] }
@@ -128,6 +129,7 @@ export default function CareerTool() {
   const scoreKeys = ["overallScore", "keywordMatch", "skillsMatch", "experienceRelevance", "achievementStrength", "readability", "formatting"];
   return <div className="mx-auto max-w-7xl px-4 py-8 sm:px-8">
     <header className="mb-8"><p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Career workspace</p><h1 className="text-3xl font-semibold tracking-tight">{routeTool === "coach" ? "AI career copilot" : config.title}</h1><p className="mt-2 max-w-2xl text-muted-foreground">{config.description}</p></header>
+    {routeTool === "applications" && <div className="mb-6"><OutcomeInsights /></div>}
     {routeTool === "coach" && <section className="mb-6 space-y-3 rounded-xl border border-primary/20 bg-primary/5 p-5"><label className="block text-sm font-medium">What would you like help with?<Select className="mt-2 block w-full rounded border bg-card p-2" value={coachAction} disabled={pending} onValueChange={value => setCoachAction(value)} aria-label="What would you like help with?" options={["coach", "summary", "bullets", "skills", "ats", "match", "optimizer", "cover-letters", "interviews", "linkedin", "gap"].map(value => ({ value, label: tools[value].title }))}/></label><p className="text-sm">Your selected resume, target job and notes stay with you when switching actions. Review suggested edits before applying them.</p>{resumeId && <Link className="inline-block text-sm font-medium text-primary underline" href={`/dashboard/resume/${resumeId}/edit#resume-ai`}>Draft or edit the full resume</Link>}</section>}
     <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_300px]"><div className="min-w-0 space-y-6">
       <fieldset disabled={pending} className="min-w-0 space-y-4 rounded-xl border bg-card p-5 sm:p-6">

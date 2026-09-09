@@ -171,7 +171,11 @@
 @media print { .resume-document { padding: 0; box-shadow: none; } .resume-document .resume-entry { break-inside: auto; } .resume-document h3, .resume-entry-meta { break-after: avoid; } }
 
 /* Shared interface tokens keep the career tools consistent; resume pages remain paper-white. */
-html { scroll-behavior: smooth; scroll-padding-top: 90px; }
+/* scrollbar-gutter reserves the scrollbar's space permanently. Without it,
+   opening a dialog locks body scroll, the scrollbar disappears, the viewport
+   widens, and every centred fixed element (left:50% + translate-x:-50%)
+   recomputes — so modals visibly jump sideways as they open. */
+html { scroll-behavior: smooth; scroll-padding-top: 90px; scrollbar-gutter: stable; }
 body { letter-spacing: -.015em; -webkit-font-smoothing: antialiased; }
 ::selection { background: #66edce44; color: inherit; }
 :focus-visible { outline: 2px solid hsl(var(--primary)); outline-offset: 4px; }

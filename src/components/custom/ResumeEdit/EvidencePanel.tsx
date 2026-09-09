@@ -71,7 +71,7 @@ const EvidencePanel = ({ resumeId }: { resumeId: string }) => {
   }, [path, options]);
 
   return (
-    <section aria-labelledby="evidence-heading" className="mt-6 rounded-xl border bg-card p-5 sm:p-6">
+    <section id="evidence-vault" aria-labelledby="evidence-heading" className="mt-6 rounded-xl border bg-card p-5 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="eyebrow flex items-center gap-2"><FileCheck2 size={14} /> PROOF FOR YOUR CLAIMS</p>

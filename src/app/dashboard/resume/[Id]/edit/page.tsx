@@ -12,6 +12,7 @@ import ProfileSyncActions from "@/components/custom/ResumeEdit/ProfileSyncAction
 import AuthenticityPanel from "@/components/custom/ResumeEdit/AuthenticityPanel";
 import MachineViewPanel from "@/components/custom/ResumeEdit/MachineViewPanel";
 import EvidencePanel from "@/components/custom/ResumeEdit/EvidencePanel";
+import LiabilityPanel from "@/components/custom/ResumeEdit/LiabilityPanel";
 import {
   ResumeInfoContext,
   ResumeInfoProvider,
@@ -69,6 +70,7 @@ const ResumeEditor = () => {
         <AuthenticityPanel resumeId={params?.Id} />
         <MachineViewPanel resumeId={params?.Id} />
         <EvidencePanel resumeId={params?.Id} />
+        <LiabilityPanel resumeId={params?.Id} />
       </div>
     </>
   );
